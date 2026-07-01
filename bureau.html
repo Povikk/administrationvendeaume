@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bureau de la Cour de Vendeaume</title>
+<style>
+:root {
+    --ink:#24180f;
+    --muted:#6f5a3d;
+    --paper:#d8c292;
+    --paper-light:#ead9ad;
+    --panel:#c4a86f;
+    --wood:#452d18;
+    --wood-dark:#2c1b10;
+    --gold:#b88934;
+    --green:#3f7d43;
+    --red:#8b2f28;
+    --blue:#183653;
+}
+
+* { box-sizing:border-box; }
+
+body {
+    margin:0;
+    min-height:100vh;
+    color:var(--ink);
+    font-family:Georgia, "Times New Roman", serif;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(184,137,52,0.20), transparent 32%),
+        linear-gradient(135deg, #1b1713, #332417 48%, #161616);
+}
+
+body::before {
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.20;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:34px 34px;
+}
+
+.app {
+    width:min(1500px, 96vw);
+    margin:18px auto 28px;
+}
+
+.topbar {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:16px 18px;
+    background:linear-gradient(180deg, #d9c392, #b99658);
+    border:1px solid rgba(255,232,173,0.24);
+    box-shadow:0 18px 38px rgba(0,0,0,0.34), inset 0 0 0 2px rgba(64,39,17,0.35);
+}
+
+.brand h1 {
+    margin:0;
+    font-size:30px;
+    letter-spacing:0;
+    text-transform:uppercase;
+}
+
+.brand p {
+    margin:3px 0 0;
+    color:var(--muted);
+    font-size:14px;
+}
+
+.tabs {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+button,
+.copy-link {
+    min-height:38px;
+    border:1px solid rgba(35,18,8,0.45);
+    background:linear-gradient(#684424, var(--wood));
+    color:#fff1cc;
+    font-family:Georgia, "Times New Roman", serif;
+    font-weight:bold;
+    cursor:pointer;
+    padding:9px 12px;
+    box-shadow:inset 0 1px 0 rgba(255,231,186,0.18);
+}
+
+button:hover,
+.copy-link:hover { filter:brightness(1.08); }
+
+button.secondary {
+    background:rgba(255,250,230,0.25);
+    color:var(--ink);
+}
+
+.tab-btn.active {
+    background:linear-gradient(#203d5c, var(--blue));
+    outline:2px solid rgba(184,137,52,0.55);
+}
+
+.workspace {
+    display:grid;
+    grid-template-columns:minmax(0, 1.1fr) minmax(360px, 0.9fr);
+    gap:16px;
+    margin-top:16px;
+}
+
+.workspace.intendance-mode {
+    grid-template-columns:1fr;
+}
+
+.workspace.intendance-mode .preview-panel {
+    display:none;
+}
+
+.panel {
+    background:linear-gradient(180deg, rgba(235,217,173,0.96), rgba(197,168,111,0.96));
+    border:1px solid rgba(70,40,20,0.42);
+    box-shadow:0 12px 26px rgba(0,0,0,0.20), inset 0 0 0 1px rgba(255,250,220,0.22);
+}
+
+.panel h2,
+.panel h3 {
+    margin:0;
+    padding:12px 14px;
+    color:#f3dfaa;
+    background:linear-gradient(90deg, var(--wood-dark), var(--blue));
+    border-bottom:1px solid rgba(40,20,8,0.38);
+}
+
+.panel-body {
+    padding:14px;
+}
+
+.view { display:none; }
+.view.active { display:block; }
+
+label {
+    display:block;
+    margin:11px 0 5px;
+    font-size:13px;
+    color:#3a2818;
+    font-weight:bold;
+}
+
+input,
+select,
+textarea {
+    width:100%;
+    border:1px solid rgba(70,40,20,0.38);
+    background:rgba(255,252,239,0.70);
+    color:var(--ink);
+    padding:10px;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:15px;
+}
+
+textarea {
+    min-height:96px;
+    resize:vertical;
+}
+
+.grid-2,
+.grid-3 {
+    display:grid;
+    gap:10px;
+}
+
+.grid-2 { grid-template-columns:1fr 1fr; }
+.grid-3 { grid-template-columns:1fr 1fr 1fr; }
+
+.grid-2 > *,
+.grid-3 > * {
+    min-width:0;
+}
+
+.payment-date-grid {
+    grid-template-columns:minmax(0, 1.15fr) minmax(0, 0.85fr);
+}
+
+.field-help {
+    display:block;
+    margin-top:4px;
+    color:rgba(54,35,20,0.62);
+    font-size:11px;
+    font-style:italic;
+    line-height:1.25;
+}
+
+.status-row {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    background:rgba(255,252,239,0.36);
+    border:1px solid rgba(70,40,20,0.18);
+}
+
+.dot {
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    background:var(--red);
+    box-shadow:0 0 0 3px rgba(139,47,40,0.15);
+}
+
+.dot.open {
+    background:var(--green);
+    box-shadow:0 0 0 3px rgba(63,125,67,0.18);
+}
+
+.actions {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+}
+
+.preview {
+    min-height:320px;
+    padding:16px;
+    color:#dcddde;
+    background:linear-gradient(180deg, #303238, #24262b);
+    border:1px solid rgba(0,0,0,0.45);
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 22px rgba(38,24,13,0.16);
+}
+
+.preview h2,
+.preview h3 {
+    margin:14px 0 10px;
+    color:#fff;
+    text-align:left;
+}
+
+.preview h2 { font-size:20px; }
+.preview h3 { font-size:16px; }
+
+.preview-line {
+    margin:4px 0;
+    overflow-wrap:anywhere;
+}
+
+.preview-quote {
+    margin:4px 0;
+    padding:4px 0 4px 10px;
+    border-left:4px solid #4f545c;
+    color:#d4d7dc;
+    overflow-wrap:anywhere;
+}
+
+.preview-small {
+    margin:2px 0;
+    color:#aeb2b8;
+    font-size:12px;
+    font-style:italic;
+}
+
+.discord-limit-panel {
+    display:none;
+    margin-top:10px;
+    padding:10px;
+    background:rgba(255,252,239,0.40);
+    border:1px solid rgba(70,40,20,0.20);
+    color:rgba(54,35,20,0.78);
+    font-size:13px;
+}
+
+.discord-limit-panel.show {
+    display:block;
+}
+
+.discord-limit-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.discord-limit-title {
+    font-weight:bold;
+    color:#3b2414;
+}
+
+.discord-limit-count {
+    font-size:12px;
+    font-style:italic;
+    color:rgba(54,35,20,0.68);
+    white-space:nowrap;
+}
+
+.discord-part-buttons {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+    gap:8px;
+    margin-top:8px;
+}
+
+.discord-part-buttons button {
+    min-height:34px;
+    padding:8px 10px;
+    font-size:12px;
+}
+
+.hold-select-row {
+    margin-top:10px;
+}
+
+.map-layout {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) 330px;
+    gap:12px;
+}
+
+.map-layout > aside {
+    max-height:min(78vh, 860px);
+    overflow:hidden;
+}
+
+.map-wrap {
+    position:relative;
+    height:min(78vh, 860px);
+    min-height:680px;
+    overflow:auto;
+    background:#1b1713;
+    border:1px solid rgba(30,18,8,0.55);
+    cursor:grab;
+}
+
+.map-canvas {
+    position:relative;
+    width:100%;
+    height:100%;
+    min-width:100%;
+    min-height:100%;
+    background:url("assets/eastmarch-map.jpg") center/cover no-repeat;
+    cursor:crosshair;
+}
+
+.map-wrap.panning {
+    cursor:grabbing;
+}
+
+.map-tools {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:0 0 10px;
+    flex-wrap:wrap;
+}
+
+.map-tools button {
+    min-width:38px;
+    min-height:32px;
+    padding:5px 9px;
+}
+
+.estate-marker {
+    position:absolute;
+    transform:translate(-50%, -50%);
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    background:#b88934;
+    border:2px solid rgba(255,244,204,0.92);
+    box-shadow:0 0 0 3px rgba(30,18,8,0.54), 0 8px 16px rgba(0,0,0,0.34);
+    cursor:pointer;
+}
+
+.estate-marker::after {
+    content:attr(data-title);
+    position:absolute;
+    left:18px;
+    top:-7px;
+    display:none;
+    min-width:120px;
+    max-width:190px;
+    padding:5px 7px;
+    color:#f8e8bd;
+    background:rgba(30,18,8,0.92);
+    border:1px solid rgba(184,137,52,0.72);
+    font-size:12px;
+}
+
+.estate-marker.shop {
+    background:#4d87b5;
+}
+
+.estate-marker.late {
+    background:#9d2f25;
+    box-shadow:0 0 0 3px rgba(157,47,37,0.34), 0 8px 16px rgba(0,0,0,0.34);
+}
+
+.estate-marker.active,
+.estate-marker:hover {
+    width:19px;
+    height:19px;
+    z-index:5;
+}
+
+.estate-marker.active::after,
+.estate-marker:hover::after {
+    display:block;
+}
+
+.estate-popup {
+    position:absolute;
+    z-index:8;
+    width:min(260px, 80vw);
+    padding:10px;
+    transform:translate(14px, -12px);
+    color:#f8e8bd;
+    background:rgba(30,18,8,0.94);
+    border:1px solid rgba(184,137,52,0.86);
+    box-shadow:0 16px 28px rgba(0,0,0,0.42);
+    font-size:13px;
+}
+
+.estate-popup strong {
+    display:block;
+    margin-bottom:5px;
+    color:#fff1cc;
+    font-size:15px;
+}
+
+.estate-popup small {
+    display:block;
+    margin-top:4px;
+    color:#d8c292;
+}
+
+.estate-popup .item-actions {
+    margin-top:9px;
+}
+
+.estate-legend {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:8px 0 10px;
+    color:rgba(54,35,20,0.72);
+    font-size:12px;
+    font-style:italic;
+}
+
+.legend-item {
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.legend-dot {
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#b88934;
+    box-shadow:0 0 0 2px rgba(30,18,8,0.20);
+}
+
+.legend-dot.shop {
+    background:#4d87b5;
+}
+
+.legend-dot.late {
+    background:#9d2f25;
+}
+
+.estate-list {
+    display:grid;
+    gap:5px;
+    max-height:clamp(260px, calc(78vh - 250px), 610px);
+    overflow:auto;
+}
+
+.estate-list-panel {
+    margin-top:12px;
+    border:1px solid rgba(70,40,20,0.20);
+    background:rgba(255,252,239,0.26);
+}
+
+.estate-list-title {
+    padding:9px 10px;
+    font-weight:bold;
+    color:#3a2818;
+    border-bottom:1px solid rgba(70,40,20,0.16);
+}
+
+.estate-count {
+    color:rgba(54,35,20,0.62);
+    font-size:12px;
+    font-style:italic;
+    font-weight:normal;
+}
+
+.estate-list-panel .estate-list {
+    padding:8px;
+}
+
+.estate-item {
+    padding:5px 7px;
+    background:rgba(255,252,239,0.32);
+    border:1px solid rgba(70,40,20,0.16);
+    cursor:pointer;
+}
+
+.estate-item:hover,
+.estate-item.active {
+    background:rgba(255,252,239,0.58);
+    border-color:rgba(70,40,20,0.34);
+}
+
+.estate-line {
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+
+.estate-dot {
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#b88934;
+    flex:0 0 auto;
+}
+
+.estate-dot.shop {
+    background:#4d87b5;
+}
+
+.estate-dot.late {
+    background:#9d2f25;
+}
+
+.estate-details {
+    display:none;
+    margin-top:7px;
+    max-height:145px;
+    overflow:auto;
+    padding-right:3px;
+}
+
+.estate-item.active .estate-details {
+    display:block;
+}
+
+.estate-item small {
+    display:block;
+    color:var(--muted);
+    margin-top:3px;
+}
+
+.item-actions {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(68px, 1fr));
+    gap:6px;
+    margin-top:8px;
+}
+
+.item-actions button {
+    min-height:28px;
+    width:100%;
+    padding:4px 5px;
+    font-size:11px;
+    line-height:1.1;
+    white-space:normal;
+}
+
+.estate-add-button {
+    width:100%;
+    margin-bottom:10px;
+}
+
+.estate-form-panel {
+    position:fixed;
+    inset:0;
+    z-index:80;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(19,12,7,0.62);
+}
+
+.estate-form-panel.open {
+    display:flex;
+}
+
+.estate-form-dialog {
+    width:min(620px, 94vw);
+    max-height:88vh;
+    overflow:auto;
+    padding:16px;
+    color:#3a2818;
+    background:
+        linear-gradient(rgba(255,248,222,0.92), rgba(222,193,136,0.92)),
+        var(--paper);
+    border:1px solid rgba(67,39,18,0.42);
+    box-shadow:0 20px 50px rgba(0,0,0,0.48);
+}
+
+.estate-form-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin:-16px -16px 14px;
+    padding:11px 14px;
+    background:linear-gradient(90deg, #2c1a0d, #58351a);
+    border-bottom:1px solid rgba(184,137,52,0.55);
+}
+
+.estate-form-head h3 {
+    margin:0;
+    color:#fff1cc;
+    font-family:Georgia, "Times New Roman", serif;
+    letter-spacing:0;
+    text-shadow:0 1px 1px rgba(0,0,0,0.5);
+}
+
+.estate-form-head button {
+    min-height:30px;
+    padding:4px 10px;
+    width:auto;
+}
+
+.pill {
+    display:inline-block;
+    margin-top:5px;
+    padding:2px 6px;
+    border-radius:999px;
+    background:rgba(63,125,67,0.18);
+    color:#234c27;
+    font-size:12px;
+}
+
+.pill.late {
+    background:rgba(139,47,40,0.16);
+    color:#67231d;
+}
+
+.hint {
+    margin:0 0 10px;
+    color:rgba(54,35,20,0.72);
+    font-size:13px;
+    font-style:italic;
+}
+
+@media (max-width: 1000px) {
+    .workspace,
+    .map-layout,
+    .grid-2,
+    .grid-3 {
+        grid-template-columns:1fr;
+    }
+
+    .topbar {
+        align-items:flex-start;
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+<div class="brand">
+<h1>Bureau de la Cour de Vendeaume</h1>
+<p>Administration de la Châtellerie d'Estemarche</p>
+</div>
+<nav class="tabs">
+<button class="tab-btn active" type="button" onclick="switchTab('diplomatie')">Rapport</button>
+<button class="tab-btn" type="button" onclick="switchTab('doleances')">Doléances</button>
+<button class="tab-btn" type="button" onclick="switchTab('intendance')">Intendance</button>
+</nav>
+</header>
+
+<main class="workspace" id="workspace">
+<section>
+<div class="view" id="view-doleances">
+<div class="panel">
+<h2>Doléances de la Cour</h2>
+<div class="panel-body">
+<p class="hint">Prépare une annonce claire à copier sur Discord. Si l'heure de fin reste vide, elle n'apparaît pas.</p>
+<div class="status-row">
+<span class="dot open" id="doleanceDot"></span>
+<strong id="doleanceStatusText">Doléances ouvertes</strong>
+</div>
+<div class="grid-3">
+<div>
+<label>État</label>
+<select id="doleanceState" onchange="updateDoleancePreview()">
+<option value="open">Ouvert</option>
+<option value="closed">Fermé</option>
+</select>
+</div>
+<div>
+<label>Heure d'ouverture</label>
+<input id="doleanceStart" type="time" onchange="updateDoleancePreview()" oninput="updateDoleancePreview()">
+</div>
+<div>
+<label>Heure de fermeture</label>
+<input id="doleanceEnd" type="time" onchange="updateDoleancePreview()" oninput="updateDoleancePreview()">
+</div>
+</div>
+<div class="grid-2">
+<div>
+<label>Lieu</label>
+<input id="doleancePlace" placeholder="Palais des Rois, salle d'audience..." oninput="updateDoleancePreview()">
+</div>
+<div>
+<label>Représentant de la Cour</label>
+<input id="doleanceOfficer" placeholder="Intendant, thane, conseiller..." oninput="updateDoleancePreview()">
+</div>
+</div>
+<label>Note publique</label>
+<textarea id="doleanceNote" placeholder="Ex : les requêtes urgentes seront traitées en priorité." oninput="updateDoleancePreview()"></textarea>
+<div class="actions">
+<button type="button" onclick="copyTextFrom('doleanceOutput', 'Annonce des doléances copiée.')">Copier l'annonce</button>
+<button class="secondary" type="button" onclick="resetDoleances()">Réinitialiser</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="view active" id="view-diplomatie">
+<div class="panel">
+<h2>Rapport de la Cour</h2>
+<div class="panel-body">
+<p class="hint">Choisis le domaine du rapport, remplis seulement les champs utiles, puis copie le rapport.</p>
+<div class="grid-3">
+<div>
+<label>Domaine</label>
+<select id="diplomacyType" oninput="updateDiplomacyPreview()">
+<option>Diplomatie</option>
+<option>Intendance</option>
+<option>Interne</option>
+<option>Annonce</option>
+<option>Autre</option>
+</select>
+</div>
+<div>
+<label>Date</label>
+<input id="diplomacyDate" type="datetime-local" oninput="updateDiplomacyPreview()">
+</div>
+<div>
+<label>Rédacteur</label>
+<input id="diplomacyAuthor" placeholder="Nom / fonction" oninput="updateDiplomacyPreview()">
+</div>
+</div>
+<div class="hold-select-row" id="holdChoiceBlock">
+<label>Châtellerie concernée</label>
+<select id="holdSelect" oninput="selectHold(this.value)"></select>
+</div>
+<label>Titre court</label>
+<input id="diplomacyTitle" placeholder="Ex : audience, annonce officielle, suivi d'intendance..." oninput="updateDiplomacyPreview()">
+<label>Résumé</label>
+<textarea id="diplomacySummary" placeholder="Résumé bref de l'échange ou de la situation." oninput="updateDiplomacyPreview()"></textarea>
+<label>Détails</label>
+<textarea id="diplomacyDetails" placeholder="Points abordés, décisions, demandes, promesses, risques..." oninput="updateDiplomacyPreview()"></textarea>
+<label>Suite recommandée</label>
+<textarea id="diplomacyNext" placeholder="À transmettre, surveiller, valider par le Jarl, convoquer..." oninput="updateDiplomacyPreview()"></textarea>
+<div class="actions">
+<button type="button" onclick="copyTextFrom('diplomacyOutput', 'Rapport copié.')">Copier le rapport</button>
+<button class="secondary" type="button" onclick="resetDiplomacy()">Nouveau rapport</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="view" id="view-intendance">
+<div class="panel">
+<h2>Intendance d'Estemarche</h2>
+<div class="panel-body">
+<p class="hint">Clique sur la carte pour placer le bien sélectionné. Molette pour zoomer, clic droit maintenu pour déplacer la carte.</p>
+<div class="map-layout">
+<div>
+<div class="map-tools">
+<button type="button" onclick="setEstateMapZoom(0.2)">+</button>
+<button type="button" onclick="setEstateMapZoom(-0.2)">-</button>
+<button type="button" onclick="resetEstateMapZoom()">Vue complète</button>
+<span class="hint" id="estateMapZoomText">Zoom 100%</span>
+</div>
+<div class="map-wrap">
+<div class="map-canvas" id="estateMap" onclick="placeEstate(event)" onwheel="handleEstateMapWheel(event)" oncontextmenu="event.preventDefault()"></div>
+</div>
+</div>
+<aside>
+<button class="estate-add-button" type="button" onclick="openEstateForm()">Ajouter maison</button>
+<div class="estate-form-panel" id="estateFormPanel" onclick="closeEstateForm(event)">
+<div class="estate-form-dialog" onclick="event.stopPropagation()">
+<div class="estate-form-head">
+<h3 id="estateFormTitle">Ajouter un bien</h3>
+<button class="secondary" type="button" onclick="closeEstateForm()">Fermer</button>
+</div>
+<div class="grid-2">
+<div>
+<label>Type</label>
+<select id="estateType" onchange="renderEstatePreview()">
+<option value="house">Maison</option>
+<option value="shop">Commerce</option>
+</select>
+</div>
+<div>
+<label>Paiement</label>
+<select id="estatePayment" onchange="renderEstatePreview()">
+<option value="ok">À jour</option>
+<option value="late">En retard</option>
+<option value="free">Exempté</option>
+</select>
+</div>
+</div>
+<div class="grid-2 payment-date-grid">
+<div>
+<label>Date du paiement</label>
+<input id="estatePaidAt" type="datetime-local" onchange="renderEstatePreview()" oninput="renderEstatePreview()">
+</div>
+<div>
+<label>Valable jusqu'à</label>
+<input id="estatePaidWeek" type="date" onchange="renderEstatePreview()" oninput="renderEstatePreview()">
+<span class="field-help">Date limite couverte par le paiement.</span>
+</div>
+</div>
+<label>Nom du bien</label>
+<input id="estateName" placeholder="Ex : Maison près du pont" oninput="renderEstatePreview()">
+<label>Occupant / propriétaire</label>
+<input id="estateOwner" placeholder="Nom de l'occupant, marchand, famille..." oninput="renderEstatePreview()">
+<label>Statut</label>
+<select id="estateStatus" onchange="renderEstatePreview()">
+<option>Loué</option>
+<option>Libre</option>
+<option>Attribué</option>
+<option>Sous scellés</option>
+</select>
+<label>Note</label>
+<textarea id="estateNote" placeholder="Loyer, échéance, remarques d'intendance..." oninput="renderEstatePreview()"></textarea>
+<div class="actions">
+<button type="button" onclick="armEstatePlacement()">Placer sur carte</button>
+<button type="button" onclick="saveEstateEdit()">Valider modification</button>
+<button class="secondary" type="button" onclick="clearEstateForm()">Vider</button>
+</div>
+</div>
+</div>
+<p class="hint" id="estateStatusText">Aucun placement en attente.</p>
+<label>Recherche</label>
+<input id="estateSearch" placeholder="Rechercher par bien ou occupant..." oninput="renderEstates()">
+<div class="estate-legend">
+<span class="legend-item"><span class="legend-dot"></span> Maison</span>
+<span class="legend-item"><span class="legend-dot shop"></span> Commerce</span>
+<span class="legend-item"><span class="legend-dot late"></span> Paiement en retard</span>
+</div>
+<div class="estate-list-panel">
+<div class="estate-list-title">Biens recensés <span class="estate-count" id="estateCount"></span></div>
+<div class="estate-list" id="estateList"></div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<aside class="panel preview-panel">
+<h2>Aperçu copiable</h2>
+<div class="panel-body">
+<div class="preview" id="mainPreview"></div>
+<div class="discord-limit-panel" id="discordLimitPanel">
+<div class="discord-limit-head">
+<span class="discord-limit-title">Discord classique</span>
+<span class="discord-limit-count" id="discordLimitCount"></span>
+</div>
+<div id="discordLimitHint"></div>
+<div class="discord-part-buttons" id="discordPartButtons"></div>
+</div>
+<pre id="doleanceOutput" hidden></pre>
+<pre id="diplomacyOutput" hidden></pre>
+<pre id="estateOutput" hidden></pre>
+<div id="copyStatus" class="hint" style="margin-top:10px;"></div>
+</div>
+</aside>
+</main>
+</div>
+
+<script>
+const holds = [
+    "Estemarche / Vendeaume",
+    "La Brèche",
+    "Blancherive",
+    "Haafingar",
+    "La Crevasse",
+    "Falkreath",
+    "Hjaalmarche / Morthal",
+    "Le Clos",
+    "Fortdhiver"
+];
+
+const estateStorageKey = "bureau-vendeaume-estates";
+const bureauFormKey = "bureau-vendeaume-forms";
+const skyrimMonths = ["Primétoile", "Clairciel", "Semailles", "Ondepluie", "Plantaisons", "Mi-l'An", "Hautzénith", "Vifazur", "Âtrefeu", "Soufflegivre", "Sombreciel", "Soirétoile"];
+const skyrimDays = ["Sundas", "Morndas", "Tirdas", "Middas", "Turdas", "Fredas", "Loredas"];
+let selectedHold = "La Brèche";
+let estatePlacementArmed = false;
+let editingEstateId = null;
+let selectedEstateId = null;
+let activeOutputId = "doleanceOutput";
+let estates = [];
+const discordClassicLimit = 1950;
+let estateMapZoom = 1;
+let estateMapPanStart = null;
+
+function el(id){ return document.getElementById(id); }
+function clean(value){ return String(value || "").trim(); }
+function hasText(value){ return Boolean(clean(value)); }
+function quoteLines(value){ return String(value || "").split("\n").map(line => line.trim() ? "> "+line : "> ").join("\n"); }
+function reportSection(title, content){
+    if(!hasText(content)) return "";
+    return "### "+title+"\n"+quoteLines(clean(content))+"\n\n";
+}
+function signature(name){
+    if(!hasText(name)) return "";
+    return "\n\n\n-# *Pour la Cour de Vendeaume,*\n-# *"+clean(name)+"*";
+}
+function escapeHtml(value){
+    return String(value).replace(/[&<>"]/g, char => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;"}[char]));
+}
+function formatInlineMarkdown(value){
+    let html = escapeHtml(value);
+    html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>");
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    return html;
+}
+function renderDiscordPreview(text){
+    const preview = el("mainPreview");
+    preview.innerHTML = String(text || "").split("\n").map(line => {
+        if(line.startsWith("## ")) return "<h2>"+formatInlineMarkdown(line.slice(3))+"</h2>";
+        if(line.startsWith("### ")) return "<h3>"+formatInlineMarkdown(line.slice(4))+"</h3>";
+        if(line === ">") return "<div class=\"preview-quote\">&nbsp;</div>";
+        if(line.startsWith("> ")) return "<div class=\"preview-quote\">"+formatInlineMarkdown(line.slice(2))+"</div>";
+        if(line.startsWith("-# ")) return "<div class=\"preview-small\">"+formatInlineMarkdown(line.slice(3))+"</div>";
+        if(!line.trim()) return "<div class=\"preview-line\">&nbsp;</div>";
+        return "<div class=\"preview-line\">"+formatInlineMarkdown(line)+"</div>";
+    }).join("");
+    renderDiscordClassicControls(text);
+}
+
+function setOutput(id, text){
+    activeOutputId = id;
+    el(id).textContent = text;
+    renderDiscordPreview(text);
+}
+
+function switchTab(tab){
+    document.querySelectorAll(".tab-btn").forEach(button => button.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(view => view.classList.remove("active"));
+    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add("active");
+    el("view-"+tab).classList.add("active");
+    el("workspace").classList.toggle("intendance-mode", tab === "intendance");
+    if(tab === "doleances") updateDoleancePreview();
+    if(tab === "diplomatie") updateDiplomacyPreview();
+    if(tab === "intendance") {
+        renderEstates();
+        applyEstateMapZoom();
+    }
+}
+
+function formatDateTime(value){
+    const date = value ? new Date(value) : new Date();
+    const skyrimDate = skyrimDays[date.getDay()]+" "+date.getDate()+" de "+skyrimMonths[date.getMonth()]+", 4E 226";
+    const skyrimHour = date.getHours()+"ème sablier";
+    const realDate = date.toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long" });
+    const realTime = date.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+    return skyrimDate+", "+skyrimHour+" ("+realDate+", "+realTime+")";
+}
+
+function splitDiscordClassicText(text, limit = discordClassicLimit){
+    const normalized = String(text || "").trim();
+    if(!normalized) return [];
+    const parts = [];
+    let current = "";
+
+    function pushCurrent(){
+        if(current.trim()) parts.push(current.trim());
+        current = "";
+    }
+
+    function splitLongLine(line){
+        const chunks = [];
+        let rest = line;
+        while(rest.length > limit){
+            let cut = rest.lastIndexOf(" ", limit);
+            if(cut < Math.floor(limit * 0.65)) cut = limit;
+            chunks.push(rest.slice(0, cut).trim());
+            rest = rest.slice(cut).trim();
+        }
+        if(rest) chunks.push(rest);
+        return chunks;
+    }
+
+    function appendText(value, separator){
+        const textValue = String(value || "");
+        if(!textValue) return;
+        const gap = current ? separator : "";
+        if((current + gap + textValue).length <= limit){
+            current += gap + textValue;
+            return;
+        }
+        pushCurrent();
+        if(textValue.length <= limit){
+            current = textValue;
+            return;
+        }
+        splitLongLine(textValue).forEach(chunk => appendText(chunk, ""));
+    }
+
+    function appendBlock(block){
+        if(!block) return;
+        const separator = current ? "\n\n" : "";
+        if((current + separator + block).length <= limit){
+            current += separator + block;
+            return;
+        }
+        if(block.length <= limit){
+            pushCurrent();
+            current = block;
+            return;
+        }
+        block.split("\n").forEach(line => appendText(line, "\n"));
+    }
+
+    normalized.split(/\n{2,}/).forEach(block => appendBlock(block.trim()));
+    pushCurrent();
+    return parts;
+}
+
+function renderDiscordClassicControls(text){
+    const panel = el("discordLimitPanel");
+    const count = el("discordLimitCount");
+    const hint = el("discordLimitHint");
+    const buttons = el("discordPartButtons");
+    const length = String(text || "").length;
+    const parts = splitDiscordClassicText(text);
+    count.textContent = length+" / 2000 caractères";
+    buttons.innerHTML = "";
+
+    if(length <= 2000){
+        panel.classList.remove("show");
+        return;
+    }
+
+    panel.classList.add("show");
+    hint.textContent = "Le contenu dépasse la limite Discord classique. Copiez les morceaux dans l'ordre, en messages séparés. Avec Nitro, la copie complète passe jusqu'à 4000 caractères.";
+    buttons.innerHTML = parts.map((part, index) =>
+        "<button type=\"button\" onclick=\"copyOutputChunk("+index+")\">Copier contenu "+(index + 1)+"/"+parts.length+" ("+part.length+")</button>"
+    ).join("");
+}
+
+function updateDoleancePreview(){
+    const open = el("doleanceState").value === "open";
+    el("doleanceDot").classList.toggle("open", open);
+    el("doleanceStatusText").textContent = open ? "Doléances ouvertes" : "Doléances fermées";
+
+    const start = clean(el("doleanceStart").value);
+    const end = clean(el("doleanceEnd").value);
+    const place = clean(el("doleancePlace").value);
+    const officer = clean(el("doleanceOfficer").value);
+    const note = clean(el("doleanceNote").value);
+    const text = [
+        "## "+(open ? "🟢 DOLÉANCES OUVERTES" : "🔴 DOLÉANCES FERMÉES"),
+        start ? "**Ouverture :** "+start : "",
+        end ? "**Fermeture :** "+end : "",
+        place ? "**Lieu :** "+place : "",
+        officer ? "**Représentant :** "+officer : "",
+        "\n---\n",
+        reportSection("Note publique", note)
+    ].filter(Boolean).join("\n");
+
+    setOutput("doleanceOutput", text);
+    saveBureauForms();
+}
+
+function resetDoleances(){
+    el("doleanceState").value = "open";
+    el("doleanceEnd").value = "";
+    el("doleancePlace").value = "";
+    el("doleanceOfficer").value = "";
+    el("doleanceNote").value = "";
+    updateDoleancePreview();
+}
+
+function renderHolds(){
+    el("holdSelect").innerHTML = holds.map(hold => `<option value="${hold}">${hold}</option>`).join("");
+    el("holdSelect").value = selectedHold;
+}
+
+function selectHold(name){
+    selectedHold = name;
+    if(el("holdSelect")) el("holdSelect").value = selectedHold;
+    updateDiplomacyPreview();
+}
+
+function updateDiplomacyPreview(){
+    const type = clean(el("diplomacyType").value);
+    const title = clean(el("diplomacyTitle").value);
+    const date = clean(el("diplomacyDate").value);
+    const author = clean(el("diplomacyAuthor").value);
+    const summary = clean(el("diplomacySummary").value);
+    const details = clean(el("diplomacyDetails").value);
+    const next = clean(el("diplomacyNext").value);
+    const isDiplomacy = type === "Diplomatie";
+    el("holdChoiceBlock").style.display = isDiplomacy ? "block" : "none";
+    const text = [
+        "## ["+type+"] "+(title || (isDiplomacy ? selectedHold : "Sans titre")),
+        isDiplomacy ? "**Châtellerie :** "+selectedHold : "",
+        author ? "**Rédacteur :** "+author : "",
+        "**Date :** "+formatDateTime(date),
+        "\n---\n",
+        reportSection("Résumé", summary),
+        reportSection("Détails", details),
+        reportSection("Suite recommandée", next),
+        signature(author)
+    ].filter(Boolean).join("\n");
+
+    setOutput("diplomacyOutput", text);
+    saveBureauForms();
+}
+
+function resetDiplomacy(){
+    ["diplomacyTitle", "diplomacyAuthor", "diplomacySummary", "diplomacyDetails", "diplomacyNext"].forEach(id => el(id).value = "");
+    fillDateDefaults();
+    updateDiplomacyPreview();
+}
+
+function showEstateForm(title){
+    el("estateFormTitle").textContent = title;
+    el("estateFormPanel").classList.add("open");
+}
+
+function openEstateForm(){
+    clearEstateForm();
+    showEstateForm("Ajouter un bien");
+}
+
+function closeEstateForm(event){
+    if(event && event.target !== el("estateFormPanel")) return;
+    el("estateFormPanel").classList.remove("open");
+}
+
+function armEstatePlacement(){
+    const name = clean(el("estateName").value);
+    if(!name){
+        el("estateStatusText").textContent = "Indique au moins un nom de bien avant de placer.";
+        return;
+    }
+    estatePlacementArmed = true;
+    el("estateStatusText").textContent = "Clique sur la carte pour placer le bien.";
+    closeEstateForm();
+}
+
+function placeEstate(event){
+    if(!estatePlacementArmed){
+        if(selectedEstateId){
+            selectedEstateId = null;
+            renderEstates();
+        }
+        return;
+    }
+    const rect = el("estateMap").getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const item = readEstateForm();
+    if(item.payment === "ok" && !item.paidWeek){
+        item.paidWeek = currentPaymentWeekKey();
+    }
+    item.x = Math.max(0, Math.min(100, x));
+    item.y = Math.max(0, Math.min(100, y));
+
+    if(editingEstateId){
+        estates = estates.map(estate => estate.id === editingEstateId ? { ...item, id:editingEstateId } : estate);
+    } else {
+        estates.push({ ...item, id:"estate-"+Date.now() });
+    }
+
+    editingEstateId = null;
+    estatePlacementArmed = false;
+    saveEstates();
+    renderEstates();
+    clearEstateForm();
+    el("estateStatusText").textContent = "Bien placé sur la carte.";
+}
+
+function applyEstateMapZoom(){
+    const map = el("estateMap");
+    const wrap = document.querySelector(".map-wrap");
+    if(!map || !wrap) return;
+    const baseWidth = Math.max(wrap.clientWidth, 900);
+    const baseHeight = Math.max(wrap.clientHeight, 680);
+    map.style.width = Math.round(baseWidth * estateMapZoom)+"px";
+    map.style.height = Math.round(baseHeight * estateMapZoom)+"px";
+    el("estateMapZoomText").textContent = "Zoom "+Math.round(estateMapZoom * 100)+"%";
+}
+
+function setEstateMapZoom(delta, focus){
+    const wrap = document.querySelector(".map-wrap");
+    const previous = estateMapZoom;
+    const pointerX = focus ? focus.x : wrap.clientWidth / 2;
+    const pointerY = focus ? focus.y : wrap.clientHeight / 2;
+    const contentX = (wrap.scrollLeft + pointerX) / previous;
+    const contentY = (wrap.scrollTop + pointerY) / previous;
+
+    estateMapZoom = Math.max(1, Math.min(4, estateMapZoom + delta));
+    applyEstateMapZoom();
+    wrap.scrollLeft = contentX * estateMapZoom - pointerX;
+    wrap.scrollTop = contentY * estateMapZoom - pointerY;
+}
+
+function handleEstateMapWheel(event){
+    event.preventDefault();
+    const wrap = document.querySelector(".map-wrap");
+    const rect = wrap.getBoundingClientRect();
+    setEstateMapZoom(event.deltaY < 0 ? 0.16 : -0.16, {
+        x:event.clientX - rect.left,
+        y:event.clientY - rect.top
+    });
+}
+
+function resetEstateMapZoom(){
+    const wrap = document.querySelector(".map-wrap");
+    estateMapZoom = 1;
+    applyEstateMapZoom();
+    if(wrap){
+        wrap.scrollLeft = 0;
+        wrap.scrollTop = 0;
+    }
+}
+
+function setupEstateMapPan(){
+    const wrap = document.querySelector(".map-wrap");
+    const map = el("estateMap");
+    if(!wrap || !map) return;
+
+    wrap.onmousedown = event => {
+        if(event.button !== 2) return;
+        estateMapPanStart = {
+            x:event.clientX,
+            y:event.clientY,
+            left:wrap.scrollLeft,
+            top:wrap.scrollTop
+        };
+        wrap.classList.add("panning");
+        event.preventDefault();
+    };
+
+    window.addEventListener("mousemove", event => {
+        if(!estateMapPanStart) return;
+        wrap.scrollLeft = estateMapPanStart.left - (event.clientX - estateMapPanStart.x);
+        wrap.scrollTop = estateMapPanStart.top - (event.clientY - estateMapPanStart.y);
+    });
+
+    window.addEventListener("mouseup", event => {
+        if(event.button !== 2 || !estateMapPanStart) return;
+        estateMapPanStart = null;
+        wrap.classList.remove("panning");
+    });
+}
+
+function readEstateForm(){
+    const payment = el("estatePayment").value;
+    const paidAtValue = clean(el("estatePaidAt").value);
+    const paidWeekValue = clean(el("estatePaidWeek").value);
+    const paidAt = payment === "ok" && paidAtValue ? new Date(paidAtValue).toISOString() : (payment === "ok" ? new Date().toISOString() : "");
+    return {
+        type:el("estateType").value,
+        payment,
+        paidWeek:payment === "ok" ? (paidWeekValue || currentPaymentWeekKey(paidAtValue ? new Date(paidAtValue) : new Date())) : "",
+        paidAt,
+        name:clean(el("estateName").value) || "Bien sans nom",
+        owner:clean(el("estateOwner").value),
+        status:clean(el("estateStatus").value),
+        note:clean(el("estateNote").value)
+    };
+}
+
+function renderEstates(){
+    applyWeeklyPaymentUpdate();
+    const map = el("estateMap");
+    map.querySelectorAll(".estate-marker").forEach(marker => marker.remove());
+    map.querySelectorAll(".estate-popup").forEach(popup => popup.remove());
+    const search = clean(el("estateSearch") ? el("estateSearch").value : "").toLowerCase();
+    const visibleEstates = estates.filter(item => {
+        if(!search) return true;
+        return String(item.name || "").toLowerCase().includes(search) ||
+            String(item.owner || "").toLowerCase().includes(search);
+    });
+
+    if(selectedEstateId && !visibleEstates.some(item => item.id === selectedEstateId)){
+        selectedEstateId = null;
+    }
+
+    if(el("estateCount")){
+        el("estateCount").textContent = "("+visibleEstates.length+"/"+estates.length+")";
+    }
+
+    visibleEstates.forEach(item => {
+        const marker = document.createElement("div");
+        marker.className = "estate-marker "+(item.type === "shop" ? "shop" : "house")+" "+(item.payment === "late" ? "late" : "")+" "+(item.id === selectedEstateId ? "active" : "");
+        marker.style.left = item.x+"%";
+        marker.style.top = item.y+"%";
+        marker.dataset.title = item.name+" · "+(item.type === "shop" ? "Commerce" : "Maison")+" · "+paymentLabel(item.payment);
+        marker.onclick = event => {
+            event.stopPropagation();
+            toggleEstateDetails(item.id);
+        };
+        map.appendChild(marker);
+    });
+
+    const selected = visibleEstates.find(item => item.id === selectedEstateId);
+    if(selected){
+        const popup = document.createElement("div");
+        popup.className = "estate-popup";
+        popup.style.left = selected.x+"%";
+        popup.style.top = selected.y+"%";
+        popup.onclick = event => event.stopPropagation();
+        popup.innerHTML = `
+            <strong>${selected.name}</strong>
+            <small>${selected.type === "shop" ? "Commerce" : "Maison"} · ${selected.status}${selected.owner ? " · "+selected.owner : ""}</small>
+            <span class="pill ${selected.payment === "late" ? "late" : ""}">${paymentLabel(selected.payment)}</span>
+            <small>Cycle : mise à jour chaque samedi${selected.paidWeek ? " · payé semaine "+selected.paidWeek : ""}</small>
+            ${selected.paidAt ? `<small>Dernier paiement : ${formatPaymentDate(selected.paidAt)}</small>` : ""}
+            ${selected.note ? `<small>${selected.note}</small>` : ""}
+            <div class="item-actions">
+                <button type="button" onclick="markEstatePaid('${selected.id}')">Payé</button>
+                <button type="button" onclick="markEstatePaidAhead('${selected.id}')">+1 semaine</button>
+                <button type="button" onclick="editEstate('${selected.id}')">Modifier</button>
+                <button type="button" onclick="deleteEstate('${selected.id}')">Suppr.</button>
+            </div>
+        `;
+        map.appendChild(popup);
+    }
+
+    el("estateList").innerHTML = visibleEstates.length ? visibleEstates.map(item => `
+        <div class="estate-item ${item.id === selectedEstateId ? "active" : ""}" onclick="toggleEstateDetails('${item.id}')">
+            <div class="estate-line">
+                <span class="estate-dot ${item.type === "shop" ? "shop" : "house"} ${item.payment === "late" ? "late" : ""}"></span>
+                <strong>${item.name}</strong>
+            </div>
+            <div class="estate-details">
+                <small>${item.type === "shop" ? "Commerce" : "Maison"} · ${item.status}${item.owner ? " · "+item.owner : ""}</small>
+                <span class="pill ${item.payment === "late" ? "late" : ""}">${paymentLabel(item.payment)}</span>
+                <small>Cycle : mise à jour chaque samedi${item.paidWeek ? " · payé semaine "+item.paidWeek : ""}</small>
+                ${item.paidAt ? `<small>Dernier paiement : ${formatPaymentDate(item.paidAt)}</small>` : ""}
+                ${item.note ? `<small>${item.note}</small>` : ""}
+                <div class="item-actions" onclick="event.stopPropagation()">
+                <button type="button" onclick="markEstatePaid('${item.id}')">Payé</button>
+                <button type="button" onclick="markEstatePaidAhead('${item.id}')">+1 semaine</button>
+                <button type="button" onclick="editEstate('${item.id}')">Modifier</button>
+                <button type="button" onclick="deleteEstate('${item.id}')">Suppr.</button>
+                </div>
+            </div>
+       </div>
+    `).join("") : "<p class=\"hint\">Aucun bien trouvé.</p>";
+}
+
+function paymentLabel(value){
+    if(value === "late") return "Paiement en retard";
+    if(value === "free") return "Exempté";
+    return "Paiement à jour";
+}
+
+function currentPaymentWeekKey(date = new Date()){
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diff = (d.getDay() + 1) % 7;
+    d.setDate(d.getDate() - diff);
+    return d.toISOString().slice(0, 10);
+}
+
+function nextPaymentWeekKey(){
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return currentPaymentWeekKey(d);
+}
+
+function formatPaymentDate(value){
+    const date = new Date(value);
+    if(Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" })+
+        ", "+date.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+}
+
+function formatDateTimeInput(dateValue){
+    const date = dateValue ? new Date(dateValue) : new Date();
+    if(Number.isNaN(date.getTime())) return "";
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+}
+
+function normalizeEstate(item){
+    const normalized = {
+        id:item.id || "estate-"+Date.now()+"-"+Math.random().toString(16).slice(2),
+        type:item.type === "shop" ? "shop" : "house",
+        payment:["ok", "late", "free"].includes(item.payment) ? item.payment : "ok",
+        paidWeek:item.paidWeek || "",
+        paidAt:item.paidAt || "",
+        name:item.name || "Bien sans nom",
+        owner:item.owner || "",
+        status:item.status || "Loué",
+        note:item.note || "",
+        x:Number(item.x) || 50,
+        y:Number(item.y) || 50
+    };
+    if(normalized.payment === "ok" && !normalized.paidWeek){
+        normalized.paidWeek = currentPaymentWeekKey();
+    }
+    return normalized;
+}
+
+function applyWeeklyPaymentUpdate(){
+    const week = currentPaymentWeekKey();
+    let changed = false;
+    estates = estates.map(item => {
+        const normalized = normalizeEstate(item);
+        if(normalized.payment === "ok" && normalized.paidWeek && normalized.paidWeek < week){
+            changed = true;
+            return { ...normalized, payment:"late" };
+        }
+        return normalized;
+    });
+    if(changed) saveEstates();
+}
+
+function toggleEstateDetails(id){
+    selectedEstateId = selectedEstateId === id ? null : id;
+    renderEstates();
+}
+
+function markEstatePaid(id){
+    const paidAt = new Date().toISOString();
+    estates = estates.map(item => item.id === id ? { ...normalizeEstate(item), payment:"ok", paidWeek:currentPaymentWeekKey(), paidAt } : normalizeEstate(item));
+    selectedEstateId = id;
+    saveEstates();
+    renderEstates();
+    el("estateStatusText").textContent = "Paiement marqué à jour le "+formatPaymentDate(paidAt)+".";
+}
+
+function markEstatePaidAhead(id){
+    const paidAt = new Date().toISOString();
+    estates = estates.map(item => item.id === id ? { ...normalizeEstate(item), payment:"ok", paidWeek:nextPaymentWeekKey(), paidAt } : normalizeEstate(item));
+    selectedEstateId = id;
+    saveEstates();
+    renderEstates();
+    el("estateStatusText").textContent = "Paiement marqué une semaine en avance le "+formatPaymentDate(paidAt)+".";
+}
+
+function editEstate(id){
+    const item = estates.find(estate => estate.id === id);
+    if(!item) return;
+    editingEstateId = id;
+    selectedEstateId = id;
+    el("estateType").value = item.type;
+    el("estatePayment").value = item.payment;
+    el("estatePaidAt").value = item.paidAt ? formatDateTimeInput(item.paidAt) : "";
+    el("estatePaidWeek").value = item.paidWeek || "";
+    el("estateName").value = item.name;
+    el("estateOwner").value = item.owner || "";
+    el("estateStatus").value = item.status || "Loué";
+    el("estateNote").value = item.note || "";
+    el("estateStatusText").textContent = "Modification de "+item.name+" : corrige les champs puis valide, ou replace sur la carte.";
+    renderEstatePreview();
+    renderEstates();
+    showEstateForm("Modifier un bien");
+}
+
+function saveEstateEdit(){
+    if(!editingEstateId){
+        el("estateStatusText").textContent = "Sélectionne d'abord un bien à modifier.";
+        return;
+    }
+
+    const previous = estates.find(estate => estate.id === editingEstateId);
+    if(!previous) {
+        editingEstateId = null;
+        el("estateStatusText").textContent = "Bien introuvable.";
+        return;
+    }
+
+    const updated = {
+        ...readEstateForm(),
+        id:editingEstateId,
+        x:previous.x,
+        y:previous.y
+    };
+
+    estates = estates.map(estate => estate.id === editingEstateId ? updated : estate);
+    selectedEstateId = editingEstateId;
+    editingEstateId = null;
+    saveEstates();
+    closeEstateForm();
+    renderEstates();
+    el("estateStatusText").textContent = "Modification enregistrée.";
+}
+
+function deleteEstate(id){
+    if(!confirm("Supprimer ce bien de l'intendance ?")) return;
+    estates = estates.filter(estate => estate.id !== id);
+    if(editingEstateId === id) editingEstateId = null;
+    if(selectedEstateId === id) selectedEstateId = null;
+    saveEstates();
+    renderEstates();
+}
+
+function clearEstateForm(){
+    editingEstateId = null;
+    selectedEstateId = null;
+    el("estateType").value = "house";
+    el("estatePayment").value = "ok";
+    el("estatePaidAt").value = "";
+    el("estatePaidWeek").value = "";
+    el("estateName").value = "";
+    el("estateOwner").value = "";
+    el("estateStatus").value = "Loué";
+    el("estateNote").value = "";
+    estatePlacementArmed = false;
+    renderEstatePreview();
+    renderEstates();
+}
+
+function renderEstatePreview(){
+    if(el("workspace").classList.contains("intendance-mode")){
+        return;
+    }
+}
+
+function saveEstates(){
+    localStorage.setItem(estateStorageKey, JSON.stringify(estates));
+}
+
+function restoreEstates(){
+    try {
+        estates = (JSON.parse(localStorage.getItem(estateStorageKey)) || []).map(normalizeEstate);
+    } catch(e) {
+        estates = [];
+    }
+    applyWeeklyPaymentUpdate();
+    renderEstates();
+}
+
+function saveBureauForms(){
+    const data = {
+        doleanceState:el("doleanceState").value,
+        doleanceStart:el("doleanceStart").value,
+        doleanceEnd:el("doleanceEnd").value,
+        doleancePlace:el("doleancePlace").value,
+        doleanceOfficer:el("doleanceOfficer").value,
+        doleanceNote:el("doleanceNote").value,
+        selectedHold,
+        diplomacyType:el("diplomacyType").value,
+        diplomacyDate:el("diplomacyDate").value,
+        diplomacyAuthor:el("diplomacyAuthor").value,
+        diplomacyTitle:el("diplomacyTitle").value,
+        diplomacySummary:el("diplomacySummary").value,
+        diplomacyDetails:el("diplomacyDetails").value,
+        diplomacyNext:el("diplomacyNext").value
+    };
+    localStorage.setItem(bureauFormKey, JSON.stringify(data));
+}
+
+function restoreBureauForms(){
+    let data = null;
+    try {
+        data = JSON.parse(localStorage.getItem(bureauFormKey));
+    } catch(e) {}
+    if(!data) return;
+    Object.keys(data).forEach(key => {
+        if(el(key)) el(key).value = data[key];
+    });
+    if(!["Diplomatie", "Intendance", "Interne", "Annonce", "Autre"].includes(el("diplomacyType").value)){
+        el("diplomacyType").value = "Diplomatie";
+    }
+    selectedHold = holds.includes(data.selectedHold) ? data.selectedHold : selectedHold;
+}
+
+async function copyTextFrom(id, message){
+    const text = el(id).textContent;
+    try {
+        await copyTextToClipboard(text);
+        el("copyStatus").textContent = message;
+    } catch(e) {
+        el("copyStatus").textContent = "Copie bloquée par le navigateur. Sélectionne l'aperçu puis Ctrl+C.";
+    }
+}
+
+async function copyTextToClipboard(text){
+    if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text);
+        return true;
+    }
+
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.top = "-9999px";
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(area);
+    if(!copied) throw new Error("copy failed");
+    return true;
+}
+
+async function copyOutputChunk(index){
+    const text = el(activeOutputId).textContent;
+    const parts = splitDiscordClassicText(text);
+    const part = parts[index] || "";
+    try {
+        await copyTextToClipboard(part);
+        el("copyStatus").textContent = "Contenu "+(index + 1)+"/"+parts.length+" copié.";
+    } catch(e) {
+        el("copyStatus").textContent = "Copie bloquée par le navigateur. Sélectionne le morceau puis Ctrl+C.";
+    }
+}
+
+function fillDateDefaults(){
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const value = now.toISOString().slice(0, 16);
+    if(!el("diplomacyDate").value) el("diplomacyDate").value = value;
+    if(!el("doleanceStart").value) el("doleanceStart").value = now.toTimeString().slice(0, 5);
+}
+
+fillDateDefaults();
+restoreBureauForms();
+renderHolds();
+restoreEstates();
+setupEstateMapPan();
+applyEstateMapZoom();
+updateDiplomacyPreview();
+</script>
+</body>
+</html>
