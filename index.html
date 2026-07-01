@@ -1,0 +1,5524 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Bureau de la Garde de Vendeaume</title>
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+    --ink:#24170f;
+    --ink-soft:#6a5437;
+    --wood:#4b2f1a;
+    --wood-dark:#1b120c;
+    --brass:#b58535;
+    --paper:#efe0b8;
+    --paper-deep:#caa66b;
+    --line:rgba(54,32,18,0.42);
+    --shadow:rgba(12,8,5,0.45);
+}
+
+body {
+    margin:0;
+    font-family: Georgia, serif;
+    color:var(--ink);
+    background:
+        radial-gradient(circle at 14% 6%, rgba(168,115,47,0.28), transparent 26%),
+        radial-gradient(circle at 82% 14%, rgba(21,13,8,0.66), transparent 34%),
+        linear-gradient(90deg, rgba(214,166,88,0.05) 1px, transparent 1px),
+        linear-gradient(#3b2516, #1b120c 115%);
+    background-size:auto, auto, 46px 46px, auto;
+    min-height:100vh;
+}
+
+body::before {
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.10;
+    background-image:url("https://www.transparenttextures.com/patterns/parchment.png");
+}
+
+body::after {
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    box-shadow:inset 0 0 150px rgba(0,0,0,0.62);
+}
+
+.container {
+    max-width:1180px;
+    margin:40px auto;
+    padding:30px;
+    position:relative;
+    background:
+        linear-gradient(90deg, rgba(40,23,12,0.22), transparent 8%, transparent 92%, rgba(40,23,12,0.22)),
+        linear-gradient(180deg, rgba(235,213,166,0.94), rgba(190,151,89,0.90));
+    border:1px solid rgba(211,160,77,0.30);
+    box-shadow:0 28px 90px var(--shadow), inset 0 0 0 5px rgba(60,34,16,0.12);
+}
+
+.container::before,
+.container::after {
+    content:"";
+    position:absolute;
+    left:18px;
+    right:18px;
+    height:1px;
+    background:linear-gradient(90deg, transparent, rgba(83,49,22,0.42), transparent);
+}
+
+.container::before { top:14px; }
+.container::after { bottom:14px; }
+
+.app-header {
+    margin-bottom:22px;
+    text-align:center;
+}
+
+.top-tool-buttons {
+    position:absolute;
+    top:24px;
+    left:30px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    z-index:3;
+}
+
+.top-tool-buttons.right {
+    left:auto;
+    right:30px;
+}
+
+.law-codex-btn {
+    width:auto;
+    min-height:0;
+    padding:7px 11px;
+    margin:0;
+    font-size:11px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    opacity:.82;
+}
+
+.law-codex-btn:hover,
+.law-codex-btn:focus {
+    opacity:1;
+}
+
+.org-dialog {
+    width:min(2100px, 99vw);
+}
+
+.org-head {
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    align-items:flex-start;
+    margin-bottom:12px;
+    border-bottom:1px solid rgba(70,40,20,0.24);
+    padding-bottom:10px;
+}
+
+.org-head p {
+    margin:3px 0 0;
+    color:#5e4328;
+    font-size:13px;
+    font-style:italic;
+}
+
+.org-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.org-actions button {
+    width:auto;
+    margin:0;
+    min-height:30px;
+    padding:6px 10px;
+    font-size:12px;
+}
+
+.org-chart {
+    overflow:auto;
+    padding:24px 18px 28px;
+    min-height:520px;
+    max-height:82vh;
+    background:
+        radial-gradient(circle at 50% 8%, rgba(181,133,53,0.16), transparent 28%),
+        rgba(255,252,239,0.34);
+    border:1px solid rgba(70,40,20,0.28);
+    cursor:grab;
+}
+
+.org-chart.panning {
+    cursor:grabbing;
+}
+
+.org-board {
+    min-width:1760px;
+}
+
+.org-level {
+    display:flex;
+    justify-content:center;
+    gap:22px;
+    align-items:flex-start;
+    min-width:max-content;
+}
+
+.org-command-row,
+.org-lieutenant-row,
+.org-sergeant-row {
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:28px;
+}
+
+.org-command-row {
+    margin-bottom:34px;
+}
+
+.org-lieutenant-row {
+    gap:38px;
+    align-items:stretch;
+}
+
+.org-branch {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:410px;
+    position:relative;
+}
+
+.org-branch > .org-card {
+    min-height:142px;
+}
+
+.org-branch > .org-card::after {
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-30px;
+    width:2px;
+    height:30px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-sergeant-row {
+    margin-top:30px;
+    position:relative;
+}
+
+.org-sergeant-row::before {
+    content:"";
+    position:absolute;
+    top:-15px;
+    left:8%;
+    right:8%;
+    height:2px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-sergeant-column {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+}
+
+.org-sergeant-column::before {
+    content:"";
+    position:absolute;
+    top:-30px;
+    left:50%;
+    width:2px;
+    height:30px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-guard-stack {
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:10px;
+    margin-top:28px;
+    position:relative;
+}
+
+.org-guard-column {
+    display:grid;
+    gap:9px;
+}
+
+.org-guard-stack::before {
+    content:"";
+    position:absolute;
+    top:-28px;
+    left:50%;
+    width:2px;
+    height:28px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-node-wrap {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+}
+
+.org-children {
+    display:flex;
+    gap:18px;
+    align-items:flex-start;
+    justify-content:center;
+    margin-top:28px;
+    position:relative;
+}
+
+.org-children::before {
+    content:"";
+    position:absolute;
+    top:-15px;
+    left:10%;
+    right:10%;
+    height:2px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-node-wrap.has-children > .org-card::after {
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-30px;
+    width:2px;
+    height:30px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-children > .org-node-wrap::before {
+    content:"";
+    position:absolute;
+    top:-28px;
+    left:50%;
+    width:2px;
+    height:28px;
+    background:rgba(35,23,14,0.72);
+}
+
+.org-card {
+    position:relative;
+    width:220px;
+    min-height:122px;
+    padding:0 0 8px;
+    background:
+        linear-gradient(180deg, rgba(251,241,206,0.96), rgba(222,194,132,0.88));
+    border:2px solid rgba(33,22,13,0.86);
+    box-shadow:0 8px 20px rgba(24,13,7,0.22), inset 0 0 0 2px rgba(181,133,53,0.28);
+}
+
+.org-card::before,
+.org-card::after {
+    pointer-events:none;
+}
+
+.org-card-name {
+    display:block;
+    min-height:40px;
+    padding:7px 22px 7px 8px;
+    margin:0 0 8px;
+    background:linear-gradient(#0e2a3f, #061927);
+    color:#f3e5c0;
+    text-align:center;
+    font-weight:bold;
+    font-size:17px;
+    line-height:1.15;
+    border-bottom:2px solid rgba(181,133,53,0.85);
+    text-shadow:0 1px 0 #000;
+    overflow:hidden;
+    overflow-wrap:anywhere;
+}
+
+.org-card-name.long-name {
+    font-size:14px;
+    line-height:1.08;
+}
+
+.org-card-name.very-long-name {
+    font-size:12px;
+    line-height:1.04;
+}
+
+.org-card[data-grade="Capitaine"] .org-card-name {
+    background:linear-gradient(#5a1e18, #2c0e0b);
+}
+
+.org-card[data-grade="Lieutenant"] .org-card-name {
+    background:linear-gradient(#163451, #071b2c);
+}
+
+.org-card[data-grade="Sergent"] .org-card-name {
+    background:linear-gradient(#3f3118, #21170c);
+}
+
+.org-info {
+    padding:0 12px;
+    display:grid;
+    gap:2px;
+    font-size:13px;
+}
+
+.org-info span {
+    display:block;
+}
+
+.org-info strong {
+    color:#2f1f12;
+}
+
+.org-card-actions {
+    position:absolute;
+    right:4px;
+    top:4px;
+    display:grid;
+    gap:2px;
+    z-index:2;
+}
+
+.org-card-actions button {
+    width:14px;
+    height:14px;
+    min-height:14px;
+    padding:0;
+    margin:0;
+    border:none;
+    font-size:9px;
+    line-height:14px;
+    transform:none;
+    box-shadow:none;
+}
+
+.org-card-actions button:hover,
+.org-card-actions button:active {
+    transform:none;
+}
+
+.org-empty {
+    text-align:center;
+    color:#5e4328;
+    padding:40px 10px;
+    font-style:italic;
+}
+
+.org-editor-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+h2 {
+    margin:0;
+    font-size:30px;
+    letter-spacing:0;
+    color:#1b1009;
+    text-shadow:0 1px 0 rgba(255,234,178,0.55);
+}
+
+.subtitle {
+    margin:6px 0 0;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size:14px;
+}
+
+.workspace {
+    display:grid;
+    grid-template-columns:minmax(0, 1.05fr) minmax(340px, 0.95fr);
+    gap:22px;
+    align-items:start;
+}
+
+.form-pane,
+.preview-pane {
+    min-width:0;
+}
+
+.preview-pane {
+    position:sticky;
+    top:18px;
+    padding-left:22px;
+    border-left:1px solid rgba(70,40,20,0.22);
+}
+
+label {
+    display:block;
+    font-weight:bold;
+    margin-top:4px;
+    color:#302014;
+}
+
+.section,
+.panel {
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid rgba(70,40,20,0.25);
+}
+
+.panel {
+    padding:0;
+    border:1px solid var(--line);
+    background:
+        linear-gradient(180deg, rgba(239,224,184,0.70), rgba(158,116,58,0.26));
+    box-shadow:0 12px 32px rgba(18,10,5,0.18);
+}
+
+.panel > summary {
+    padding:12px 14px;
+    cursor:pointer;
+    font-weight:bold;
+    background:linear-gradient(90deg, rgba(52,31,18,0.30), rgba(181,133,53,0.10));
+    border-bottom:1px solid rgba(70,40,20,0.16);
+    list-style:none;
+}
+
+.panel > summary::-webkit-details-marker,
+.law-panel > summary::-webkit-details-marker {
+    display:none;
+}
+
+.panel > summary::before,
+.law-panel > summary::before {
+    content:"▸";
+    display:inline-block;
+    margin-right:8px;
+    color:var(--brass);
+}
+
+.panel[open] > summary::before,
+.law-panel[open] > summary::before {
+    content:"▾";
+}
+
+.panel-body {
+    padding:12px;
+}
+
+.mode-bar,
+.button-row,
+.tool-grid {
+    display:grid;
+    gap:10px;
+}
+
+.mode-bar,
+.button-row {
+    grid-template-columns:1fr 1fr;
+}
+
+.mode-bar {
+    margin-bottom:20px;
+}
+
+.button-row {
+    grid-template-columns:1fr 1fr;
+}
+
+.mode-btn {
+    background:linear-gradient(#6b4725, var(--wood));
+    border:1px solid rgba(45,25,12,0.45);
+    box-shadow:inset 0 1px 0 rgba(255,231,186,0.18);
+}
+
+.mode-btn.active {
+    background:linear-gradient(#3f2a18, var(--wood-dark));
+    outline:2px solid rgba(181,133,53,0.45);
+}
+
+.quick-help {
+    margin:-8px 0 18px;
+    padding:9px 11px;
+    background:rgba(255,252,239,0.42);
+    border:1px solid rgba(70,40,20,0.18);
+    color:rgba(54,35,20,0.78);
+    font-size:12px;
+    line-height:1.35;
+}
+
+.quick-help strong {
+    color:#2d1a0f;
+}
+
+.guard-row,
+.context-row,
+.report-head-row {
+    display:grid;
+    grid-template-columns:minmax(0, 1.5fr) minmax(130px, .7fr);
+    gap:10px;
+    align-items:end;
+}
+
+.report-head-row {
+    grid-template-columns:minmax(0, 1.5fr) minmax(130px, .7fr) minmax(130px, .7fr);
+}
+
+.guard-row label,
+.context-row label,
+.report-head-row label {
+    margin-top:0;
+}
+
+.guard-row input,
+.guard-row select,
+.context-row input,
+.report-head-row input,
+.report-head-row select {
+    margin-bottom:0;
+}
+
+.location-tools {
+    position:relative;
+    margin:6px 0 0;
+}
+
+.location-map-btn {
+    position:absolute;
+    right:6px;
+    top:50%;
+    transform:translateY(-50%);
+    width:28px;
+    height:28px;
+    min-height:28px;
+    padding:0;
+    margin:0;
+    line-height:26px;
+    font-size:15px;
+}
+
+.location-tools input {
+    margin:0;
+    padding-right:44px;
+}
+
+.location-status {
+    display:block;
+    min-height:14px;
+    margin-top:3px;
+    color:rgba(63,42,24,0.62);
+    font-size:11px;
+    font-style:italic;
+}
+
+input, textarea, select {
+    width:100%;
+    padding:10px 11px;
+    margin:6px 0 12px;
+    font-family:Georgia, serif;
+    color:var(--ink);
+    border:1px solid rgba(60,40,20,0.42);
+    background:rgba(255,252,239,0.72);
+    box-shadow:inset 0 1px 4px rgba(72,42,18,0.08);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline:2px solid rgba(181,133,53,0.42);
+    border-color:rgba(92,55,23,0.7);
+}
+
+textarea {
+    min-height:80px;
+    resize:vertical;
+}
+
+button {
+    width:100%;
+    padding:10px;
+    background:linear-gradient(#6b4725, var(--wood));
+    color:#f5e6c8;
+    border:1px solid rgba(45,25,12,0.42);
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:8px;
+    transition:background 140ms ease, transform 140ms ease;
+}
+
+button:hover,
+button:focus {
+    background:linear-gradient(#4b3019, #3b2414);
+}
+
+button:active {
+    transform:translateY(1px);
+}
+
+a.quiet-btn {
+    display:block;
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    color:#f5e6c8;
+    border:1px solid rgba(45,25,12,0.42);
+    font-weight:bold;
+    text-align:center;
+    text-decoration:none;
+    box-sizing:border-box;
+}
+
+.quiet-btn {
+    background:linear-gradient(#8a7352, #6f5a3f);
+}
+
+.law-list {
+    display:grid;
+    gap:8px;
+    margin:8px 0 12px;
+    max-height:260px;
+    overflow:auto;
+    padding-right:6px;
+}
+
+.law-item {
+    background:rgba(255,252,239,0.50);
+    border:1px solid rgba(70,40,20,0.28);
+    padding:10px;
+}
+
+.law-panel {
+    margin:6px 0 12px;
+}
+
+.law-panel > summary {
+    padding:10px;
+    background:linear-gradient(#6b4725, var(--wood));
+    color:#f5e6c8;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.law-results {
+    display:grid;
+    gap:8px;
+    margin:8px 0 12px;
+}
+
+.law-result {
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:8px;
+    padding:10px;
+    background:rgba(255,252,239,0.62);
+    border:1px solid rgba(70,40,20,0.28);
+}
+
+.law-result-detail {
+    display:block;
+}
+
+.law-result-detail > summary {
+    cursor:pointer;
+    list-style:none;
+}
+
+.law-result-detail > summary::-webkit-details-marker {
+    display:none;
+}
+
+.law-result-full {
+    display:block;
+    margin-top:7px;
+    padding-top:7px;
+    border-top:1px solid rgba(70,40,20,0.18);
+    color:#2f1f12;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.law-result-hint {
+    display:block;
+    margin-top:4px;
+    color:rgba(63,42,24,0.55);
+    font-size:12px;
+    font-style:italic;
+}
+
+.law-result-detail[open] .law-result-text,
+.law-result-detail[open] .law-result-hint {
+    display:none;
+}
+
+.law-result input {
+    width:auto;
+    margin:3px 0 0;
+}
+
+.law-result-title {
+    display:block;
+    font-weight:bold;
+}
+
+.law-result-meta {
+    display:block;
+    margin-top:2px;
+    color:#5e4328;
+    font-size:13px;
+}
+
+.law-result-text {
+    display:block;
+    margin-top:4px;
+    color:#3f2a18;
+    font-size:13px;
+}
+
+.law-title {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:0;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.law-title input {
+    width:auto;
+    margin:0;
+}
+
+.law-text {
+    margin:8px 0 0 24px;
+    color:#3f2a18;
+}
+
+.law-text strong {
+    display:block;
+    margin-bottom:6px;
+}
+
+.law-detail-paragraph {
+    margin:0 0 8px;
+}
+
+.law-detail-paragraph:last-child {
+    margin-bottom:0;
+}
+
+.law-bullet-list {
+    margin:8px 0;
+    padding-left:18px;
+    display:grid;
+    gap:7px;
+}
+
+.law-bullet-list li {
+    padding-left:3px;
+}
+
+.law-bullet-index {
+    font-weight:bold;
+    color:#5e2d1e;
+}
+
+.selected-laws {
+    margin:8px 0 12px;
+    padding:10px;
+    background:rgba(255,252,239,0.52);
+    border:1px solid rgba(70,40,20,0.25);
+    color:#3f2a18;
+    font-size:14px;
+}
+
+.selected-laws strong {
+    display:block;
+    margin-bottom:6px;
+}
+
+.selected-laws ul {
+    margin:0;
+    padding-left:18px;
+}
+
+.sentence-grid {
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin:6px 0 12px;
+}
+
+.sentence-card {
+    padding:10px;
+    background:rgba(255,252,239,0.52);
+    border:1px solid rgba(70,40,20,0.28);
+}
+
+.sentence-card label {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:0 0 8px;
+}
+
+.sentence-card input[type="checkbox"] {
+    width:auto;
+    margin:0;
+}
+
+.sentence-card input[type="number"] {
+    margin-bottom:0;
+}
+
+.priority-picker {
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:8px;
+    align-items:center;
+}
+
+.priority-dot {
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    border:1px solid rgba(45,25,12,0.42);
+    box-shadow:0 0 0 2px rgba(255,252,239,0.55);
+}
+
+.priority-dot.low {
+    background:#5f9b56;
+}
+
+.priority-dot.medium {
+    background:#c8a742;
+}
+
+.priority-dot.high {
+    background:#c76d35;
+}
+
+.priority-dot.critical {
+    background:#a8322d;
+}
+
+.mini-btn {
+    width:auto;
+    min-height:28px;
+    padding:0;
+    margin:-4px 0 8px;
+    font-size:12px;
+    background:transparent;
+    color:rgba(47,31,18,0.68);
+    border:none;
+    box-shadow:none;
+    font-style:italic;
+    text-align:left;
+}
+
+.mini-btn:hover,
+.mini-btn:focus {
+    background:transparent;
+    color:#2f1f12;
+    text-decoration:underline;
+}
+
+.remove-mini {
+    width:28px;
+    height:28px;
+    padding:0;
+    margin:0;
+    line-height:26px;
+    background:#3b2414;
+}
+
+#copyStatus {
+    min-height:20px;
+    margin-top:8px;
+    text-align:right;
+    font-style:italic;
+    color:#4f351e;
+}
+
+.discord-limit-panel {
+    display:none;
+    margin:10px 0 8px;
+    padding:10px;
+    background:rgba(255,252,239,0.40);
+    border:1px solid rgba(70,40,20,0.20);
+    color:rgba(54,35,20,0.78);
+    font-size:13px;
+}
+
+.discord-limit-panel.show {
+    display:block;
+}
+
+.discord-limit-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.discord-limit-title {
+    font-weight:bold;
+    color:#3b2414;
+}
+
+.discord-limit-count {
+    font-size:12px;
+    font-style:italic;
+    color:rgba(54,35,20,0.68);
+    white-space:nowrap;
+}
+
+.discord-part-buttons {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+    gap:8px;
+}
+
+.discord-part-buttons button {
+    min-height:34px;
+    font-size:12px;
+    padding:8px 10px;
+}
+
+.indiv-card {
+    position:relative;
+    padding:8px 34px 8px 10px;
+    margin-bottom:8px;
+    background:rgba(255,252,239,0.50);
+    border:1px solid rgba(70,40,20,0.32);
+    cursor:pointer;
+}
+
+.indiv-card:hover,
+.indiv-card:focus {
+    background:rgba(255,252,239,0.72);
+}
+
+.indiv-card strong {
+    display:block;
+    font-size:14px;
+}
+
+.indiv-card span {
+    display:block;
+    margin-top:2px;
+    color:#5e4328;
+    font-size:12px;
+    line-height:1.25;
+}
+
+.indiv-remove {
+    position:absolute;
+    top:8px;
+    right:8px;
+    width:22px;
+    height:22px;
+    padding:0;
+    border:none;
+    background:#3b2414;
+    color:white;
+    cursor:pointer;
+    font-size:14px;
+    line-height:22px;
+}
+
+.indiv-tools {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.indiv-empty {
+    margin:4px 0 0;
+    color:rgba(63,42,24,0.58);
+    font-size:13px;
+    font-style:italic;
+}
+
+pre {
+    margin:0;
+    padding:15px;
+    background:rgba(255,252,239,0.62);
+    white-space:pre-wrap;
+    border:1px solid rgba(60,40,20,0.4);
+}
+
+.preview-card {
+    padding:16px;
+    background:linear-gradient(180deg, #303238, #25272c);
+    color:#dcddde;
+    border:1px solid rgba(0,0,0,0.35);
+    font-family:Georgia, serif;
+    min-height:220px;
+    white-space:normal;
+    max-width:100%;
+    overflow:hidden;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 22px rgba(38,24,13,0.16);
+}
+
+.preview-card h2,
+.preview-card h3 {
+    margin:14px 0 10px;
+    color:#fff;
+    text-align:left;
+}
+
+.preview-card h2 {
+    font-size:20px;
+}
+
+.preview-card h3 {
+    font-size:16px;
+}
+
+.preview-line {
+    margin:4px 0;
+    max-width:100%;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+}
+
+.preview-quote {
+    margin:4px 0;
+    padding:4px 0 4px 10px;
+    border-left:4px solid #4f545c;
+    color:#d4d7dc;
+    max-width:100%;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+}
+
+.preview-small {
+    margin:2px 0;
+    color:#aeb2b8;
+    font-size:12px;
+    font-style:italic;
+    max-width:100%;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+}
+
+.output-title {
+    margin:18px 0 8px;
+    font-weight:bold;
+}
+
+.app-credit {
+    margin-top:14px;
+    text-align:right;
+    color:rgba(63,42,24,0.48);
+    font-size:12px;
+    font-style:italic;
+}
+
+#personalNotes {
+    min-height:130px;
+}
+
+.watch-board {
+    display:grid;
+    gap:10px;
+}
+
+.watch-section {
+    padding:8px;
+    background:rgba(255,252,239,0.42);
+    border:1px solid rgba(70,40,20,0.24);
+}
+
+.watch-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.watch-title {
+    font-weight:bold;
+    color:#302014;
+}
+
+.watch-add {
+    width:28px;
+    height:28px;
+    padding:0;
+    margin:0;
+    line-height:26px;
+}
+
+.watch-list {
+    display:grid;
+    gap:5px;
+    max-height:420px;
+    overflow:auto;
+    padding-right:3px;
+}
+
+.watch-entry {
+    position:relative;
+    min-height:0;
+    padding:6px 32px 6px 9px;
+    background:rgba(255,252,239,0.56);
+    border:1px solid rgba(70,40,20,0.28);
+    cursor:pointer;
+}
+
+.watch-entry:hover,
+.watch-entry:focus {
+    background:rgba(255,252,239,0.72);
+}
+
+.watch-entry strong {
+    display:block;
+    overflow:hidden;
+    color:#2f1f12;
+    font-size:13px;
+    line-height:1.15;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.watch-entry span {
+    display:block;
+    margin-top:2px;
+    overflow:hidden;
+    color:#5e4328;
+    font-size:11px;
+    line-height:1.2;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.watch-detail {
+    display:none;
+    margin-top:6px;
+    padding-top:6px;
+    border-top:1px solid rgba(70,40,20,0.16);
+    color:#3f2a18;
+    font-size:12px;
+    line-height:1.35;
+}
+
+.watch-entry.open .watch-detail {
+    display:block;
+}
+
+.watch-entry.open strong,
+.watch-entry.open span {
+    overflow:visible;
+    white-space:normal;
+}
+
+.watch-empty {
+    margin:4px 0 0;
+    color:rgba(63,42,24,0.58);
+    font-size:13px;
+    font-style:italic;
+}
+
+.watch-auth {
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:8px;
+    align-items:center;
+    min-width:170px;
+}
+
+.watch-auth input {
+    padding:5px 7px;
+    margin:0;
+    font-size:12px;
+}
+
+.watch-auth .watch-add {
+    width:24px;
+    height:24px;
+    line-height:22px;
+    font-size:12px;
+}
+
+.watch-auth .watch-add.auth-ok {
+    background:linear-gradient(#4d7a3e, #345c2a);
+    color:#f4ffe9;
+}
+
+.watch-auth .watch-add.auth-bad {
+    background:linear-gradient(#8c3b32, #61251f);
+    color:#fff0ed;
+}
+
+.watch-summary {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.watch-summary-title {
+    white-space:nowrap;
+}
+
+.watch-status {
+    min-height:18px;
+    margin:0;
+    color:rgba(63,42,24,0.62);
+    font-size:12px;
+    font-style:italic;
+}
+
+.watch-remove {
+    position:absolute;
+    top:4px;
+    right:6px;
+    width:16px;
+    height:16px;
+    padding:0;
+    margin:0;
+    border:none;
+    background:#3b2414;
+    color:white;
+    line-height:14px;
+    font-size:11px;
+}
+
+.watch-edit {
+    position:absolute;
+    top:23px;
+    right:6px;
+    width:16px;
+    height:16px;
+    padding:0;
+    margin:0;
+    border:none;
+    background:#6f5a3f;
+    color:#f5e6c8;
+    line-height:14px;
+    font-size:10px;
+}
+
+.watch-form-row {
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr;
+    gap:8px;
+}
+
+.watch-form-row input,
+.watch-form-row select {
+    margin-top:0;
+}
+
+.watch-modal {
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(18,10,5,0.54);
+    z-index:20;
+}
+
+.watch-modal.open {
+    display:flex;
+}
+
+.watch-dialog {
+    width:min(520px, 100%);
+    max-height:92vh;
+    overflow:auto;
+    padding:16px;
+    background:
+        linear-gradient(180deg, rgba(239,224,184,0.98), rgba(199,161,97,0.96));
+    border:1px solid rgba(70,40,20,0.46);
+    box-shadow:0 24px 70px rgba(12,8,5,0.48);
+}
+
+.watch-dialog.org-dialog {
+    width:min(2100px, 99vw);
+}
+
+.watch-dialog h3 {
+    margin:0 0 10px;
+    font-size:18px;
+}
+
+.law-codex-dialog {
+    width:min(860px, 96vw);
+}
+
+.law-codex-head {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:10px;
+}
+
+.law-codex-head h3 {
+    margin-bottom:2px;
+}
+
+.law-codex-head p {
+    margin:0;
+    color:#5e4328;
+    font-size:12px;
+}
+
+.law-codex-head .quiet-btn {
+    width:auto;
+    min-height:0;
+    padding:7px 10px;
+    margin:0;
+}
+
+.law-codex-list {
+    display:grid;
+    gap:8px;
+    max-height:58vh;
+    overflow:auto;
+    padding:4px 4px 4px 0;
+}
+
+.law-codex-item .law-title {
+    align-items:flex-start;
+}
+
+.law-codex-source {
+    display:block;
+    margin-top:3px;
+    color:#745332;
+    font-size:11px;
+    font-weight:normal;
+}
+
+.watch-dialog textarea {
+    min-height:66px;
+}
+
+.watch-dialog-actions {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.map-list {
+    display:grid;
+    gap:8px;
+}
+
+.map-card {
+    position:relative;
+    display:grid;
+    grid-template-columns:68px 1fr;
+    gap:10px;
+    align-items:center;
+    padding:8px;
+    background:rgba(255,252,239,0.54);
+    border:1px solid rgba(70,40,20,0.28);
+    cursor:pointer;
+    text-align:left;
+    color:var(--ink);
+}
+
+.map-card.has-actions {
+    padding-right:38px;
+}
+
+.map-card:hover,
+.map-card:focus {
+    background:rgba(255,252,239,0.74);
+}
+
+.map-card img {
+    width:68px;
+    height:48px;
+    object-fit:cover;
+    border:1px solid rgba(70,40,20,0.32);
+}
+
+.map-card strong {
+    display:block;
+    font-size:14px;
+}
+
+.map-card span {
+    display:block;
+    margin-top:2px;
+    color:#5e4328;
+    font-size:12px;
+}
+
+.map-dialog {
+    width:min(1400px, 98vw);
+}
+
+.map-viewer-toolbar {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 0 8px;
+    color:#5e4328;
+    font-size:12px;
+    font-style:italic;
+}
+
+.map-viewer-toolbar .quiet-btn {
+    width:auto;
+    min-height:28px;
+    margin:0;
+    padding:5px 10px;
+    font-size:12px;
+}
+
+.map-modal-viewport {
+    overflow:auto;
+    max-height:82vh;
+    border:1px solid rgba(70,40,20,0.34);
+    background:rgba(42,25,13,0.24);
+    cursor:zoom-in;
+}
+
+.map-modal-viewport.panning {
+    cursor:grabbing;
+}
+
+.zone-map-dialog {
+    width:min(1500px, 96vw);
+}
+
+.zone-map-workspace {
+    display:grid;
+    grid-template-columns:64px 1fr;
+    gap:10px;
+    align-items:start;
+}
+
+.zone-map-toolbar {
+    display:grid;
+    gap:7px;
+    position:sticky;
+    top:0;
+}
+
+.zone-map-toolbar button {
+    width:100%;
+    min-height:34px;
+    padding:6px;
+    margin:0;
+    font-size:11px;
+}
+
+.zone-map-toolbar button.active {
+    outline:2px solid rgba(157,35,27,0.55);
+    background:linear-gradient(#4b3019, #3b2414);
+}
+
+.zone-color-row {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+}
+
+.zone-color-btn {
+    min-height:24px !important;
+    padding:0 !important;
+    border:1px solid rgba(45,25,12,0.55);
+}
+
+.zone-color-btn.active {
+    outline:2px solid rgba(245,230,200,0.82) !important;
+}
+
+.zone-tool-hint {
+    display:block;
+    padding:7px 4px;
+    color:rgba(63,42,24,0.62);
+    font-size:11px;
+    font-style:italic;
+    text-align:center;
+}
+
+.zone-map-canvas-wrap {
+    overflow:auto;
+    aspect-ratio:16 / 9;
+    width:100%;
+    height:auto;
+    max-height:74vh;
+    border:1px solid rgba(70,40,20,0.34);
+    background:rgba(42,25,13,0.24);
+}
+
+.zone-map-actions {
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+    margin:10px 0;
+}
+
+#zoneMapCanvas {
+    display:block;
+    height:auto;
+    cursor:crosshair;
+}
+
+.zone-map-preview {
+    width:min(1100px, 96vw);
+}
+
+.zone-map-preview img {
+    width:100%;
+    max-height:70vh;
+    object-fit:contain;
+    display:block;
+    margin:8px 0 10px;
+    border:1px solid rgba(70,40,20,0.28);
+    background:rgba(255,252,239,0.36);
+}
+
+.zone-preview-actions {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.map-dialog img {
+    width:100%;
+    display:block;
+    max-width:none;
+    height:auto;
+    background:rgba(42,25,13,0.24);
+}
+
+.map-remove,
+.map-edit {
+    position:absolute;
+    right:8px;
+    width:22px;
+    height:22px;
+    padding:0;
+    margin:0;
+    border:none;
+    background:#3b2414;
+    color:white;
+    line-height:20px;
+}
+
+.map-remove {
+    top:8px;
+    background:#3b2414;
+}
+
+.map-edit {
+    top:34px;
+    background:#6f5a3f;
+    color:#f5e6c8;
+    font-size:13px;
+}
+
+@media (max-width: 700px) {
+    .container {
+        margin:16px;
+        padding:18px;
+    }
+
+    .top-tool-buttons {
+        position:static;
+        display:block;
+        gap:8px;
+        margin-bottom:12px;
+    }
+
+    .top-tool-buttons.right {
+        position:static;
+    }
+
+    .law-codex-btn {
+        width:100%;
+    }
+
+    .watch-form-row,
+    .watch-dialog-actions,
+    .org-editor-grid,
+    .watch-summary,
+    .guard-row,
+    .context-row,
+    .report-head-row,
+    .mode-bar,
+    .button-row,
+    .zone-map-actions,
+    .sentence-grid {
+        grid-template-columns:1fr;
+    }
+
+    .zone-map-workspace {
+        grid-template-columns:1fr;
+    }
+
+    .zone-map-toolbar {
+        grid-template-columns:repeat(4, 1fr);
+        position:static;
+    }
+
+    .workspace {
+        grid-template-columns:1fr;
+    }
+
+    .preview-pane {
+        position:static;
+        padding-left:0;
+        border-left:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="top-tool-buttons">
+<button class="law-codex-btn" type="button" onclick="openZoneMap()">Cartographie</button>
+<button class="law-codex-btn" type="button" onclick="openOrgChart()">Organigramme</button>
+</div>
+<div class="top-tool-buttons right">
+<button class="law-codex-btn" type="button" onclick="openLawCodex()">Lois en vigueur</button>
+</div>
+
+<div class="app-header">
+<h2>📜 BUREAU DE LA GARDE - VENDEAUME 📜</h2>
+<p class="subtitle">Rédaction des rapports, arrestations et actes de service</p>
+</div>
+
+<div class="workspace">
+<div class="form-pane">
+
+<div class="quick-help">
+Choisissez le <strong>type de rapport</strong>, puis remplissez seulement les champs utiles : les champs vides ne s'affichent pas.<br>
+Le type <strong>Arrestation</strong> donne accès aux articles sélectionnables.<br>
+Une fois terminé, utilisez <strong>Copier le titre</strong> puis collez-le dans le titre Discord ; faites pareil avec <strong>Copier le contenu</strong> pour le contenu.
+</div>
+
+<label>Type de rapport</label>
+<select id="reportType" onchange="syncModeFromReportType()">
+<option>Signalement</option>
+<option>Patrouille</option>
+<option>Incident</option>
+<option>Enquête</option>
+<option>Protection</option>
+<option>Surveillance</option>
+<option>Arrestation</option>
+</select>
+
+<div class="guard-row">
+<div>
+<label>Nom du garde</label>
+<input id="nom" placeholder="Ex : Hrolf Marteau-de-Fer" oninput="saveGuardName(); handleFormChange()">
+</div>
+<div>
+<label>Grade</label>
+<select id="reportGrade">
+<option>Garde</option>
+<option>Sergent</option>
+<option>Lieutenant</option>
+<option>Capitaine</option>
+</select>
+</div>
+</div>
+
+<div class="context-row">
+<div>
+<label>Lieu</label>
+<div class="location-tools">
+<input id="lieu" placeholder="Ex : Quartier gris, Vendeaume">
+<button class="watch-add location-map-btn" type="button" onclick="openZoneMap()" title="Marquer sur carte">⌖</button>
+</div>
+</div>
+<div>
+<label>Date et heure</label>
+<input type="datetime-local" id="datetime">
+</div>
+</div>
+<span class="location-status" id="locationMapStatus"></span>
+
+<details class="panel" open>
+<summary>Individus concernés</summary>
+<div class="panel-body">
+<div class="indiv-tools">
+<span class="watch-title">Individus du rapport</span>
+<button class="watch-add" type="button" onclick="addIndiv()" title="Ajouter un individu">+</button>
+</div>
+<div id="indivContainer"></div>
+<p class="indiv-empty" id="indivEmpty">Aucun individu renseigné.</p>
+</div>
+</details>
+
+<details id="rapportMetaBox" class="panel" open>
+<summary>Informations du rapport</summary>
+<div class="panel-body">
+<div class="report-head-row">
+<div>
+<label>Titre court</label>
+<input id="reportTitle" placeholder="Ex : Trouble au marché, ronde des quais, individu suspect...">
+</div>
+
+<div id="reportTrackingFields">
+<label>Priorité</label>
+<div class="priority-picker">
+<span class="priority-dot low" id="priorityDot"></span>
+<select id="reportPriority" onchange="updatePriorityDot(); handleFormChange()">
+<option>Basse</option>
+<option>Moyenne</option>
+<option>Haute</option>
+<option>Critique</option>
+</select>
+</div>
+</div>
+
+<div id="reportStatusField">
+<label>Statut</label>
+<select id="reportStatus">
+<option>Signalé</option>
+<option>En cours</option>
+<option>Résolu</option>
+<option>À surveiller</option>
+</select>
+</div>
+</div>
+
+<div id="reportOnlyFields">
+<label>Résumé</label>
+<textarea id="rapport" placeholder="Décrire brièvement les faits en quelques lignes."></textarea>
+
+<label>Faits confirmés</label>
+<textarea id="confirmedFacts" placeholder="Ce qui est certain : témoignages reçus, constatations, éléments observés..."></textarea>
+
+<label>Informations à vérifier</label>
+<textarea id="verifyInfo" placeholder="Ce qui reste incertain : identité, destination, témoins à revoir, rumeurs..."></textarea>
+
+<label>Mesures prises</label>
+<textarea id="measuresTaken" placeholder="Actions déjà menées : avertissement, escorte, saisie, ronde renforcée..."></textarea>
+
+<label>Suite recommandée</label>
+<textarea id="recommendedNext" placeholder="À faire ensuite : surveiller, interroger, transmettre, classer, convoquer..."></textarea>
+</div>
+</div>
+</details>
+
+<details id="arrestationBox" class="panel" open style="display:none;">
+<summary>Arrestation</summary>
+<div class="panel-body">
+
+<label>Articles retenus</label>
+<input id="lawSearch" placeholder="Rechercher un article, un mot-clé, une peine..." oninput="renderLaws()">
+<div class="law-results" id="lawSearchResults"></div>
+<details class="law-panel">
+<summary>Lois locales - Estemarche / Vendeaume</summary>
+<div class="law-list" id="localLawList"></div>
+</details>
+<details class="law-panel">
+<summary>Lois impériales / Bordeciel</summary>
+<div class="law-list" id="imperialLawList"></div>
+</details>
+<details class="law-panel">
+<summary>Arrêtés locaux supplémentaires</summary>
+<div class="law-list" id="extraLocalLawList"></div>
+</details>
+<details class="law-panel">
+<summary>Pactes et accords de châtelleries</summary>
+<div class="law-list" id="treatyLawList"></div>
+</details>
+<div class="selected-laws" id="selectedLawsSummary"></div>
+
+<label>Article ou motif personnalisé</label>
+<textarea id="customLaw" placeholder="Ex : Article local non listé, refus d'obtempérer, outrage à la garde..."></textarea>
+
+<label>Description des faits</label>
+<textarea id="faits" placeholder="Ex : individu interpellé après bagarre sur la place du marché, témoins présents, refus d'obtempérer..."></textarea>
+
+<label>Décision / Peine</label>
+<div class="sentence-grid">
+<div class="sentence-card">
+<label>Geôle</label>
+<input type="number" id="jailHours" min="0" step="1" placeholder="Minutes">
+</div>
+<div class="sentence-card">
+<label>Amende</label>
+<input type="number" id="fineAmount" min="0" step="1" placeholder="Septims">
+</div>
+<div class="sentence-card">
+<label>Travaux forcés</label>
+<input type="number" id="laborHours" min="0" step="1" placeholder="Minutes">
+</div>
+</div>
+<textarea id="decision" placeholder="Décision libre : avertissement, confiscation, remise à un supérieur, surveillance, travaux particuliers..."></textarea>
+
+</div>
+</details>
+
+<div class="button-row">
+<button onclick="copyGeneratedPart('title')">Copier le titre</button>
+<button onclick="copyGeneratedPart('content')">Copier le contenu</button>
+</div>
+<div class="discord-limit-panel" id="discordLimitPanel">
+<div class="discord-limit-head">
+<span class="discord-limit-title">Discord classique</span>
+<span class="discord-limit-count" id="discordLimitCount"></span>
+</div>
+<div id="discordLimitHint"></div>
+<div class="discord-part-buttons" id="discordPartButtons"></div>
+</div>
+<button class="quiet-btn" type="button" onclick="resetForm()">Nouveau rapport</button>
+<div id="copyStatus"></div>
+</div>
+
+<div class="preview-pane">
+<details class="panel" open>
+<summary>Carnet de garde</summary>
+<div class="panel-body">
+<textarea id="personalNotes" placeholder="Notes privées, rappels, noms à surveiller..."></textarea>
+</div>
+</details>
+
+<details class="panel" open>
+<summary class="watch-summary">
+<span class="watch-summary-title">Avis de garde</span>
+<div class="watch-auth">
+<input type="password" id="guardPassword" placeholder="Mot de passe" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" oninput="markGuardPasswordUnknown()">
+<button class="watch-add" id="guardPasswordCheck" type="button" onclick="event.stopPropagation(); rememberGuardPassword()" onmousedown="event.stopPropagation()" title="Vérifier et mémoriser sur ce navigateur">✓</button>
+</div>
+</summary>
+<div class="panel-body watch-board">
+<p class="watch-status" id="watchStatus">Chargement des avis...</p>
+<div class="watch-section">
+<div class="watch-header">
+<span class="watch-title">Personnes recherchées</span>
+<button class="watch-add" type="button" onclick="addWatchEntry('wanted')" title="Ajouter une personne recherchée">+</button>
+</div>
+<div class="watch-list" id="wantedList"></div>
+<p class="watch-empty" id="wantedEmpty">Aucune personne recherchée.</p>
+</div>
+
+<div class="watch-section">
+<div class="watch-header">
+<span class="watch-title">Personnes bannies</span>
+<button class="watch-add" type="button" onclick="addWatchEntry('banned')" title="Ajouter une personne bannie">+</button>
+</div>
+<div class="watch-list" id="bannedList"></div>
+<p class="watch-empty" id="bannedEmpty">Aucune personne bannie.</p>
+</div>
+</div>
+</details>
+
+<details class="panel" open>
+<summary class="watch-summary">
+<span class="watch-summary-title">Cartes de service</span>
+<button class="watch-add" type="button" onclick="openMapEditorProtected(event)" onmousedown="event.stopPropagation()" title="Ajouter une carte">+</button>
+</summary>
+<div class="panel-body">
+<p class="watch-status" id="mapStatus">Cartes partagées.</p>
+<div class="map-list" id="serviceMapList"></div>
+</div>
+</details>
+
+<details class="panel" open>
+<summary>Aperçu Discord</summary>
+<div class="panel-body">
+<div class="preview-card" id="discordPreview"></div>
+</div>
+</details>
+
+<pre id="outputTitle" hidden></pre>
+<pre id="output" hidden></pre>
+</div>
+</div>
+
+<div class="app-credit">By Povik</div>
+
+</div>
+
+<div class="watch-modal" id="orgChartModal" onclick="closeOrgChart(event)">
+<div class="watch-dialog org-dialog" onclick="event.stopPropagation()">
+<div class="org-head">
+<div>
+<h3>Organigramme de la Garde de Vendeaume</h3>
+<p>Chaîne de commandement et répartition des effectifs. Molette pour zoomer, clic droit maintenu pour se déplacer.</p>
+<p id="orgStatus">Organigramme local.</p>
+</div>
+<div class="org-actions">
+<button type="button" onclick="openOrgEditor()">Ajouter</button>
+<button class="quiet-btn" type="button" onclick="resetOrgChartDemo()">Réinitialiser test</button>
+<button class="quiet-btn" type="button" onclick="resetOrgChartZoom()">Vue complète</button>
+<button class="quiet-btn" type="button" onclick="closeOrgChart()">Fermer</button>
+</div>
+</div>
+<div class="org-chart" id="orgChartView" onwheel="handleOrgChartWheel(event)"></div>
+</div>
+</div>
+
+<div class="watch-modal" id="orgEditorModal" onclick="closeOrgEditor(event)">
+<div class="watch-dialog" onclick="event.stopPropagation()">
+<h3 id="orgEditorTitle">Ajouter un membre</h3>
+<input type="hidden" id="orgEditorId">
+
+<div class="org-editor-grid">
+<input id="orgEditorName" placeholder="Nom et prénom">
+<select id="orgEditorRace">
+<option>Race</option>
+<option>Nordique</option>
+<option>Impérial</option>
+<option>Bréton</option>
+<option>Rougegarde</option>
+<option>Dunmer</option>
+<option>Altmer</option>
+<option>Bosmer</option>
+<option>Orque</option>
+<option>Khajiit</option>
+<option>Argonien</option>
+</select>
+</div>
+
+<div class="org-editor-grid">
+<select id="orgEditorGrade">
+<option>Garde</option>
+<option>Sergent</option>
+<option>Lieutenant</option>
+<option>Capitaine</option>
+</select>
+<select id="orgEditorParent"></select>
+</div>
+
+<div class="org-editor-grid">
+<input id="orgEditorSpecialty" placeholder="Spécialisation, ex : Guerrier, Archer...">
+<input id="orgEditorRole" placeholder="Fonction, ex : Sous-officier, Patrouilleur...">
+</div>
+
+<textarea id="orgEditorNote" placeholder="Note courte optionnelle"></textarea>
+
+<div class="watch-dialog-actions">
+<button type="button" onclick="saveOrgMember()">Valider</button>
+<button class="quiet-btn" type="button" onclick="closeOrgEditor()">Annuler</button>
+</div>
+</div>
+</div>
+
+<div class="watch-modal" id="lawCodexModal" onclick="closeLawCodex(event)">
+<div class="watch-dialog law-codex-dialog" onclick="event.stopPropagation()">
+<div class="law-codex-head">
+<div>
+<h3>Lois en vigueur</h3>
+<p>Recherche rapide dans les lois locales, arrêtés, pactes et lois impériales.</p>
+</div>
+<button class="quiet-btn" type="button" onclick="closeLawCodex()">Fermer</button>
+</div>
+<input id="lawCodexSearch" placeholder="Rechercher un article, un mot-clé, une peine..." oninput="renderLawCodex()">
+<div class="law-codex-list" id="lawCodexList"></div>
+</div>
+</div>
+
+<div class="watch-modal" id="indivModal" onclick="closeIndivModal(event)">
+<div class="watch-dialog" onclick="event.stopPropagation()">
+<h3 id="indivModalTitle">Ajouter un individu</h3>
+<input type="hidden" id="indivModalIndex">
+
+<div class="watch-form-row">
+<input id="indivModalName" placeholder="Nom de l'individu">
+<select id="indivModalRace">
+<option>Race</option>
+<option>Nordique</option>
+<option>Impérial</option>
+<option>Bréton</option>
+<option>Rougegarde</option>
+<option>Dunmer</option>
+<option>Altmer</option>
+<option>Bosmer</option>
+<option>Orque</option>
+<option>Khajiit</option>
+<option>Argonien</option>
+</select>
+<select id="indivModalSex">
+<option>Sexe</option>
+<option>Homme</option>
+<option>Femme</option>
+<option>Non défini</option>
+</select>
+</div>
+
+<select id="indivModalRole">
+<option>Rôle</option>
+<option>Témoin</option>
+<option>Victime</option>
+<option>Suspect</option>
+<option>Personne à protéger</option>
+</select>
+
+<textarea id="indivModalPhys" placeholder="Description physique (optionnel)"></textarea>
+
+<div class="watch-dialog-actions">
+<button type="button" onclick="saveIndivModal()">Valider</button>
+<button class="quiet-btn" type="button" onclick="closeIndivModal()">Annuler</button>
+</div>
+</div>
+</div>
+
+<div class="watch-modal" id="mapModal" onclick="closeMapModal(event)">
+<div class="watch-dialog map-dialog" onclick="event.stopPropagation()">
+<h3 id="mapModalTitle">Carte</h3>
+<div class="map-viewer-toolbar">
+<span>Molette pour zoomer</span>
+<button class="quiet-btn" type="button" onclick="resetServiceMapZoom()">Vue complète</button>
+</div>
+<div class="map-modal-viewport" id="mapModalViewport" onwheel="handleServiceMapWheel(event)">
+<img id="mapModalImage" src="" alt="">
+</div>
+<button class="quiet-btn" type="button" onclick="closeMapModal()">Fermer</button>
+</div>
+</div>
+
+<div class="watch-modal" id="mapEditorModal" onclick="closeMapEditor(event)">
+<div class="watch-dialog" onclick="event.stopPropagation()">
+<h3 id="mapEditorTitleText">Ajouter une carte</h3>
+<input type="hidden" id="mapEditorId">
+<input id="mapEditorTitle" placeholder="Titre de la carte">
+<input id="mapEditorDescription" placeholder="Description courte">
+<input id="mapEditorSrc" placeholder="Lien image Postimg">
+<div class="watch-dialog-actions">
+<button type="button" onclick="saveServiceMap()">Valider</button>
+<button class="quiet-btn" type="button" onclick="closeMapEditor()">Annuler</button>
+</div>
+</div>
+</div>
+
+<div class="watch-modal" id="zoneMapModal" onclick="closeZoneMap(event)">
+<div class="watch-dialog zone-map-dialog" onclick="event.stopPropagation()">
+<h3>Marquer le lieu sur la carte</h3>
+<p class="watch-status">L'image générée prendra ce qui est visible à l'écran. Utilisez les outils pour marquer une zone, une route ou une présence de garde.</p>
+<div class="zone-map-workspace">
+<div class="zone-map-toolbar">
+<button class="quiet-btn active" id="zoneToolIncident" type="button" onclick="setZoneMapTool('incident')" title="Zone de l'incident">Zone</button>
+<button class="quiet-btn" id="zoneToolLine" type="button" onclick="setZoneMapTool('line')" title="Ligne ou chemin de patrouille">Ligne</button>
+<button class="quiet-btn" id="zoneToolShield" type="button" onclick="setZoneMapTool('shield')" title="Poste gardé / présence de la garde">Bouclier</button>
+<button class="quiet-btn" id="zoneToolErase" type="button" onclick="setZoneMapTool('erase')" title="Supprimer un marquage">Suppr.</button>
+<div class="zone-color-row">
+<button class="zone-color-btn active" id="zoneColorRed" type="button" onclick="setZoneMapColor('red')" style="background:#9d231b" title="Rouge"></button>
+<button class="zone-color-btn" id="zoneColorGold" type="button" onclick="setZoneMapColor('gold')" style="background:#c6943f" title="Or"></button>
+<button class="zone-color-btn" id="zoneColorBlue" type="button" onclick="setZoneMapColor('blue')" style="background:#2e5f82" title="Bleu"></button>
+<button class="zone-color-btn" id="zoneColorGreen" type="button" onclick="setZoneMapColor('green')" style="background:#557a3d" title="Vert"></button>
+</div>
+<span class="zone-tool-hint">Molette</span>
+<button class="quiet-btn" type="button" onclick="resetZoneMapZoom()" title="Vue complète">Vue</button>
+</div>
+<div class="zone-map-canvas-wrap" onwheel="handleZoneMapWheel(event)">
+<canvas id="zoneMapCanvas"></canvas>
+</div>
+</div>
+<div class="zone-map-actions">
+<button type="button" onclick="generateZoneMapImage()">Générer l'image</button>
+<button class="quiet-btn" type="button" onclick="clearZoneMapSelection()">Effacer</button>
+<button class="quiet-btn" type="button" onclick="closeZoneMap()">Fermer</button>
+</div>
+</div>
+</div>
+
+<div class="watch-modal" id="zoneMapPreviewModal" onclick="closeZoneMapPreview(event)">
+<div class="watch-dialog zone-map-preview" onclick="event.stopPropagation()">
+<h3>Aperçu de la carte générée</h3>
+<img id="zoneMapPreview" alt="Carte annotée">
+<div class="zone-preview-actions">
+<a id="zoneMapDownload" class="quiet-btn" download="lieu-marque-vendeaume.jpg">Télécharger l'image</a>
+<button class="quiet-btn" type="button" onclick="closeZoneMapPreview()">Fermer</button>
+</div>
+</div>
+</div>
+
+<div class="watch-modal" id="watchModal" onclick="closeWatchModal(event)">
+<div class="watch-dialog" onclick="event.stopPropagation()">
+<h3 id="watchModalTitle">Ajouter une personne</h3>
+<input type="hidden" id="watchModalType">
+<input type="hidden" id="watchModalIndex">
+<input type="hidden" id="watchModalId">
+
+<div class="watch-form-row">
+<input id="watchModalName" placeholder="Nom">
+<select id="watchModalRace">
+<option>Race</option>
+<option>Nordique</option>
+<option>Impérial</option>
+<option>Bréton</option>
+<option>Rougegarde</option>
+<option>Dunmer</option>
+<option>Altmer</option>
+<option>Bosmer</option>
+<option>Orque</option>
+<option>Khajiit</option>
+<option>Argonien</option>
+</select>
+<select id="watchModalSex">
+<option>Sexe</option>
+<option>Homme</option>
+<option>Femme</option>
+<option>Non défini</option>
+</select>
+</div>
+
+<textarea id="watchModalPhys" placeholder="Description physique (optionnel)"></textarea>
+<input id="watchModalContext" placeholder="Dernier lieu vu ou zone concernée">
+<input type="datetime-local" id="watchModalDateTime" title="Date et heure du dernier signalement">
+<input id="watchModalReason" placeholder="Motif">
+<textarea id="watchModalDetails" placeholder="Consignes, dangerosité, durée, détails utiles..."></textarea>
+
+<div class="watch-dialog-actions">
+<button type="button" onclick="saveWatchModal()">Valider</button>
+<button class="quiet-btn" type="button" onclick="closeWatchModal()">Annuler</button>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+let mode = "rapport";
+const formStorageKey = "rpskyrim-current-form";
+const guardNameStorageKey = "rpskyrim-guard-name";
+const personalNotesStorageKey = "rpskyrim-personal-notes";
+const watchBoardStorageKey = "rpskyrim-watch-board";
+const guardPasswordStorageKey = "rpskyrim-guard-password";
+const supabaseUrl = "https://lrtjsbkajnbnfhlsetgl.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxydGpzYmtham5ibmZobHNldGdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzEyMTQsImV4cCI6MjA5NzAwNzIxNH0.gzoaDhcb5tASazihEcR6z7veb-agfAvTRKA0QjZjk2Y";
+let canSaveForm = false;
+let watchBoard = { wanted: [], banned: [] };
+let indivList = [];
+const discordClassicLimit = 1950;
+let supabaseClient = null;
+let watchBoardOnline = false;
+let serviceMapsOnline = false;
+let orgChartOnline = false;
+const zoneMapSrc = "assets/eastmarch-map.jpg";
+let zoneMapImage = null;
+let zoneMapShapes = [];
+let zoneMapDraft = null;
+let zoneMapDragStart = null;
+let zoneMapPanStart = null;
+let zoneMapZoom = 1;
+let zoneMapTool = "incident";
+let zoneMapColor = "red";
+let serviceMapZoom = 1;
+let serviceMapPanStart = null;
+const orgChartStorageKey = "skyrimrp_org_chart_v2";
+const orgRankOrder = { "Capitaine":0, "Lieutenant":1, "Sergent":2, "Garde":3 };
+let orgChartZoom = 1;
+let orgChartPanStart = null;
+const defaultOrgMembers = [
+    { id:"cap-ryska", parentId:"", name:"Ryska Gurvant", race:"Race", grade:"Capitaine", specialty:"Guerrier", role:"Officier supérieur", note:"" },
+    { id:"lt-memo", parentId:"cap-ryska", name:"Memo", race:"Race", grade:"Lieutenant", specialty:"Guerrier", role:"Second officier supérieur", note:"Branche I" },
+    { id:"lt-aeden", parentId:"cap-ryska", name:"Aeden", race:"Race", grade:"Lieutenant", specialty:"Guerrier", role:"Second officier supérieur", note:"Branche II" },
+    { id:"sgt-madesh", parentId:"lt-memo", name:"Madesh", race:"Race", grade:"Sergent", specialty:"Archer", role:"Sous-officier", note:"" },
+    { id:"sgt-xardo", parentId:"lt-memo", name:"Xar-do Sang de Marais", race:"Race", grade:"Sergent", specialty:"Guerrier", role:"Sous-officier", note:"" },
+    { id:"sgt-theranis", parentId:"lt-aeden", name:"Theranis Kingel", race:"Race", grade:"Sergent", specialty:"Guerrier", role:"Sous-officier", note:"" },
+    { id:"g-alrik", parentId:"sgt-madesh", name:"Alrik Brise-fer", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-joris", parentId:"sgt-madesh", name:"Joris Leusaint", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-runvald", parentId:"sgt-madesh", name:"Runvald SombreFer", race:"Race", grade:"Garde", specialty:"Archer", role:"Soldat", note:"Confirmé" },
+    { id:"g-shavee", parentId:"sgt-madesh", name:"Shavee Baie-Sucrée", race:"Race", grade:"Garde", specialty:"Cuisinier", role:"Chef cuisinier", note:"Confirmé" },
+    { id:"g-bald", parentId:"sgt-xardo", name:"Bald Forgecoeur", race:"Race", grade:"Garde", specialty:"Forgeron", role:"Soldat", note:"Confirmé" },
+    { id:"g-coeur-doux", parentId:"sgt-xardo", name:"Coeur Doux", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-heka-gaia", parentId:"sgt-xardo", name:"Héka GAIA", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-zogorn", parentId:"sgt-xardo", name:"Zogorn", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-pierre", parentId:"sgt-theranis", name:"Pierre Haute-Roche", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-badnir", parentId:"sgt-theranis", name:"Badnir Main de Fer", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-poh", parentId:"sgt-theranis", name:"Poh", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-vladhor", parentId:"sgt-theranis", name:"Vladhor", race:"Race", grade:"Garde", specialty:"Guerrier", role:"Soldat", note:"Confirmé" },
+    { id:"g-aime-la-nature", parentId:"sgt-theranis", name:"Aime La Nature", race:"Race", grade:"Garde", specialty:"Cuisinier", role:"Soldat", note:"Confirmé" },
+    { id:"g-rexwell", parentId:"", name:"Rexwell", race:"Race", grade:"Garde", specialty:"", role:"", note:"Absent, non affecté temporairement" }
+];
+let orgMembers = [];
+const defaultServiceMaps = [
+    {
+        id: "00000000-0000-0000-0000-000000000001",
+        title: "Zones de patrouille",
+        description: "Carte de service pour les rondes et secteurs de surveillance.",
+        src: "https://i.postimg.cc/VwHzskL4/Copie-de-Copie-de-Copie-de-Sans-titre-38.jpg"
+    }
+];
+let serviceMaps = [...defaultServiceMaps];
+
+function updateModeVisibility(){
+document.getElementById("reportOnlyFields").style.display =
+(mode==="rapport") ? "block" : "none";
+
+document.getElementById("reportTrackingFields").style.display =
+(mode==="rapport") ? "block" : "none";
+
+document.getElementById("reportStatusField").style.display =
+(mode==="rapport") ? "block" : "none";
+
+document.getElementById("arrestationBox").style.display =
+(mode==="arrestation") ? "block" : "none";
+}
+
+function syncModeFromReportType(){
+const type = document.getElementById("reportType").value;
+mode = type === "Arrestation" ? "arrestation" : "rapport";
+updateModeVisibility();
+handleFormChange();
+}
+
+function setMode(m){
+mode = m === "arrestation" ? "arrestation" : "rapport";
+const reportTypeField = document.getElementById("reportType");
+if(reportTypeField){
+    if(mode === "arrestation"){
+        reportTypeField.value = "Arrestation";
+    } else if(reportTypeField.value === "Arrestation"){
+        reportTypeField.value = "Signalement";
+    }
+}
+updateModeVisibility();
+handleFormChange();
+}
+
+function normalizeIndiv(data = {}){
+return {
+    name: data.name || "",
+    race: data.race || "Race",
+    sex: data.sex || "Sexe",
+    role: data.role || "Rôle",
+    phys: data.phys || ""
+};
+}
+
+function hasIndivContent(indiv){
+return indiv.name.trim() ||
+    indiv.race !== "Race" ||
+    indiv.sex !== "Sexe" ||
+    indiv.role !== "Rôle" ||
+    indiv.phys.trim();
+}
+
+function renderIndivs(){
+const container = document.getElementById("indivContainer");
+container.innerHTML = "";
+
+indivList.forEach((indiv, index) => {
+    const card = document.createElement("div");
+    card.className = "indiv-card";
+    card.tabIndex = 0;
+    card.onclick = () => openIndivModal(index);
+    card.onkeydown = event => {
+        if(event.key === "Enter" || event.key === " "){
+            event.preventDefault();
+            openIndivModal(index);
+        }
+    };
+
+    let meta = [];
+    if(indiv.race && indiv.race !== "Race") meta.push(indiv.race);
+    if(indiv.sex && indiv.sex !== "Sexe") meta.push(indiv.sex);
+    if(indiv.role && indiv.role !== "Rôle") meta.push(indiv.role);
+    if(indiv.phys) meta.push(indiv.phys);
+
+    card.innerHTML = `
+<button class="indiv-remove" type="button" onclick="removeIndiv(event, ${index})">×</button>
+<strong>${escapeHtml(indiv.name || "Individu non identifié")}</strong>
+<span>${escapeHtml(meta.length ? meta.join(" • ") : "Cliquer pour compléter la fiche")}</span>
+`;
+    container.appendChild(card);
+});
+
+updateIndivEmptyState();
+}
+
+function addIndiv(data){
+if(data && hasIndivContent(normalizeIndiv(data))){
+    indivList.push(normalizeIndiv(data));
+    renderIndivs();
+    handleFormChange();
+    return;
+}
+
+openIndivModal();
+}
+
+function openIndivModal(index = ""){
+const indiv = index === "" ? normalizeIndiv() : normalizeIndiv(indivList[index]);
+document.getElementById("indivModalIndex").value = index;
+document.getElementById("indivModalTitle").textContent =
+    index === "" ? "Ajouter un individu" : "Modifier un individu";
+document.getElementById("indivModalName").value = indiv.name;
+document.getElementById("indivModalRace").value = indiv.race;
+document.getElementById("indivModalSex").value = indiv.sex;
+document.getElementById("indivModalRole").value = indiv.role;
+document.getElementById("indivModalPhys").value = indiv.phys;
+document.getElementById("indivModal").classList.add("open");
+document.getElementById("indivModalName").focus();
+}
+
+function closeIndivModal(event){
+if(event && event.target !== document.getElementById("indivModal")) return;
+document.getElementById("indivModal").classList.remove("open");
+}
+
+function saveIndivModal(){
+const index = document.getElementById("indivModalIndex").value;
+const indiv = normalizeIndiv({
+    name: document.getElementById("indivModalName").value,
+    race: document.getElementById("indivModalRace").value,
+    sex: document.getElementById("indivModalSex").value,
+    role: document.getElementById("indivModalRole").value,
+    phys: document.getElementById("indivModalPhys").value
+});
+
+if(!hasIndivContent(indiv)){
+    if(index !== ""){
+        indivList.splice(Number(index), 1);
+        renderIndivs();
+        handleFormChange();
+    }
+    closeIndivModal();
+    return;
+}
+
+if(index === ""){
+    indivList.push(indiv);
+} else {
+    indivList[Number(index)] = indiv;
+}
+
+renderIndivs();
+handleFormChange();
+closeIndivModal();
+}
+
+function removeIndiv(event, index){
+event.stopPropagation();
+if(!confirm("Êtes-vous sûr de vouloir supprimer l'individu ?")) return;
+indivList.splice(index, 1);
+renderIndivs();
+handleFormChange();
+}
+
+function getIndivs(){
+return indivList.map(normalizeIndiv).filter(hasIndivContent);
+}
+
+function updateIndivEmptyState(){
+document.getElementById("indivEmpty").style.display =
+indivList.length ? "none" : "block";
+}
+
+const months=["Primétoile","Clairciel","Semailles","Ondepluie","Plantaisons","Mi-l'An","Hautzénith","Vifazur","Âtrefeu","Soufflegivre","Sombreciel","Soirétoile"];
+const days=["Sundas","Morndas","Tirdas","Middas","Turdas","Fredas","Loredas"];
+const localLaws = [
+    { article:"Article IV", title:"Port d'arme devant le trône", text:"Nul ne peut porter arme devant le trône sans autorisation." },
+    { article:"Article VII", title:"Dette non honorée", text:"Toute dette reconnue devant témoins doit être honorée." },
+    { article:"Article VIII", title:"Esclavage", text:"L’esclavage est interdit au sein de la Châtellerie d'Estemarche." },
+    { article:"Article IX", title:"Meurtre d'un homme libre", text:"Le meurtre d’un homme libre appelle compensation, duel ou bannissement." },
+    { article:"Article XVII", title:"Désertion en bataille", text:"La désertion en bataille est punie d’exil ou de mort." },
+    { article:"Article XVIII", title:"Pillage des terres alliées", text:"Le pillage des terres alliées est interdit." },
+    { article:"Article XIX", title:"Arme maudite, daedrique ou nécromantique", text:"Les armes maudites, daedriques ou nécromantiques doivent être déclarées." },
+    { article:"Article XXII", title:"Mensonge sous serment", text:"Mentir sous serment devant les dieux constitue sacrilège." },
+    { article:"Article XXIII", title:"Vol répété", text:"Le voleur pris trois fois perd droit de cité." },
+    { article:"Article XXV", title:"Corruption magique", text:"La corruption magique est crime majeur contre la châtellerie." },
+    { article:"Article XXVII", title:"Profanation", text:"Profaner tombes, tertres ou pierres runiques est interdit." },
+    { article:"Article XXIX", title:"Nécromancie", text:"La nécromancie est prohibée dans les terres du Jarl." },
+    { article:"Article XXXI", title:"Commerce étranger non recensé", text:"Les marchands étrangers ne sont pas autorisés à commercer sans recensement auprès de la Châtellerie." },
+    { article:"Article XXXII", title:"Commerce étranger hors zone autorisée", text:"Les caravanes khajiites et marchands étrangers peuvent commercer sous surveillance des gardes à l'extérieur des murs de Vendeaume, par delà le pont." },
+    { article:"Article XXXIII", title:"Fraude commerciale", text:"Toute fraude sur poids et mesures vaut confiscation des biens." },
+  { article:"Article XXXIV", title:"Casque, masque ou capuche dans Vendeaume", text:"Les casques, masques et capuches sont interdits au sein des murs de Vendeaume." },
+    { article:"Article XXXV", title:"Bagarre dans les rues", text:"Les bagarres dans les rues entraînent amende ou cachot." },
+    { article:"Article XXXVII", title:"Trahison draconique", text:"Aider volontairement un dragon ou un culte draconique est trahison." },
+    { article:"Article XXXVIII", title:"Provocation de géants", text:"Les géants de la Châtellerie ne doivent pas être provoqués sans raison." },
+    { article:"Article XXXIX", title:"Chasse au mammouth", text:"La chasse au mammouth sans autorisation du Jarl est interdite." }
+];
+const imperialLaws = [
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 2",
+        "title":  "Usurpation d\u0027identité [délit]",
+        "text":  "Constitue le fait d\u0027usurper l\u0027identité d\u0027un tiers. Peine en fonction de la gravité de l\u0027usurpation."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 3",
+        "title":  "Menaces [délit mineur]",
+        "text":  "Les menaces de crime ou délit envers une personne, réitérées, écrites ou verbales, intimidations ou à conditions de remplir une condition sont punies par cet article. 250 septims et 1h de travaux forcés. Menaces aggravées [délit] Les menaces de crime ou délit envers une personne, réitérées, écrites ou verbales, intimidations ou à conditions de remplir une condition, aggravées par une ou plusieurs circonstances sont punies. 500 septims, radiation du poste s’il exerce une fonction dans une administration publique et 3h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 3-1",
+        "title":  "Circonstances aggravantes :",
+        "text":  "1° Menaces sur conjoint.e, membre de la famille ou personne vulnérable ; 2° Menaces en raison de la race ou du choix de l’un des 8 Divins ; 3° Menaces sur personne dépositaire de l’autorité publique, représentant de l’État ou de la loi ; 4° Menaces par une personne dépositaire de l’autorité publique, représentant de l’État ou de la loi ; 5° Menaces sur un prêtre d’un des (ou des) 8 Divins ; 6° Menaces à main armée (magie comprise)."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 4",
+        "title":  "Rébellion [délit]",
+        "text":  "Constitue une rébellion le fait d’opposer une résistance violente ou non à une personne dépositaire de l’autorité publique ou chargée d’une mission de service public agissant, dans l’exercice de ses fonctions, pour l’exécution des lois, des ordres de l’autorité publique, des décisions ou mandats de justice lorsque celles-ci s’appliquent à la personne même. 100 septims et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 5",
+        "title":  "Chantage [délit]",
+        "text":  "Le chantage est le fait d’obtenir, en menaçant de révéler ou d’imputer des faits de nature à porter atteinte à l’honneur ou à la considération, soit une signature, un engagement ou une renonciation, soit la révélation d’un secret, soit la remise de fonds, de valeurs ou d’un bien quelconque. 250 septims et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 6",
+        "title":  "Diffamation [délit]",
+        "text":  "La diffamation est une allégation ou l’imputation d’un fait qui porte atteinte à l’honneur et à la considération d’une personne. Réparation à la hauteur du dommage causé, 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 7",
+        "title":  "Harcèlement [délit]",
+        "text":  "Le fait d’harceler une personne par des propos ou comportements répétés ayant pour objet ou pour effet une dégradation de ses conditions de vie se traduisant par une altération de sa santé physique ou mentale. Réparation à hauteur du dommage subi et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 8",
+        "title":  "Mise en danger de la vie d’autrui [délit]",
+        "text":  "Le fait d’exposer directement autrui à un risque immédiat de mort ou de blessures de nature à entraîner une mutilation ou une infirmité permanente par la violation manifestement délibérée d’une obligation particulière de prudence ou de sécurité imposée par la loi ou le règlement. 500 septims et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 9",
+        "title":  "Violences ou agression simples [crimina]",
+        "text":  "Sont considérées comme violence ou agression, les violences et agressions physiques ou psychologiques. Réparation à hauteur du préjudice subi, 550 septims d’amende et 3h de travaux forcés. Violences ou agression aggravées [crimina] Sont considérées comme violences ou agression aggravées, les violences ou aggression physiques ou psychologiques. Cela inclut les sorts d’illusion. Punition et réparation à hauteur des préjudices subis. 2h de travaux forcés et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 9-1",
+        "title":  "Circonstances aggravantes :",
+        "text":  "1° Violences ou aggression sur conjoint.e, membre de la famille ou personne vulnérable ; 2° Violences ou aggression en raison de la race ou du choix de l’un des 8 Divins ; 3° Violences ou aggression sur personne dépositaire de l’autorité publique, représentant de l’État ou de la loi ; 4° Menaces sur une personne du corps médical ; 5° Violences ou aggression à main armée ; 6° Par l’utilisation de magie quelle qu’elle soit."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 10",
+        "title":  "Prise d’otage, enlèvement et séquestration \u003e 4 personnes inclus [crimina]",
+        "text":  "Est considéré comme enlèvement et séquestration, le fait, sans ordre des autorités constituées et hors les cas prévus par la loi, d’arrêter, d’enlever, de détenir ou de séquestrer au delà de 3 personnes. 650 septims, 3h de travaux forcés et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 10-1",
+        "title":  "Prise d’otage, enlèvement et séquestration \u003c 3 personnes inclus [crimina]",
+        "text":  "Est considéré comme enlèvement et séquestration, le fait, sans ordre des autorités constituées et hors les cas prévus par la loi, d’arrêter, d’enlever, de détenir ou de séquestrer moins de 4 personnes. 800 septims, 3h de travaux forcés et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 11",
+        "title":  "Homicide involontaire [délit]",
+        "text":  "Est considéré comme homicide involontaire, le fait de causer, par maladresse, imprudence, inattention, négligence ou manquement à une obligation de prudence ou de sécurité imposée par la loi ou le règlement, la mort d’autrui. 800 septims, réparation à la famille et 5h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 12",
+        "title":  "Homicide volontaire [crimina]",
+        "text":  "Est considéré comme homicide volontaire, le fait de causer, par volonté directe, ou manquement volontaire à une obligation de prudence ou de sécurité imposée par la loi ou le règlement, la mort d’autrui. 1000 septims, réparation à la famille, 3h de travaux forcés et 2h d’emprisonnement. Homicide volontaire aggravé [crimina] Est considéré comme homicide volontaire aggravé, le fait de causer, par volonté directe, ou manquement volontaire à une obligation de prudence ou de sécurité imposée par la loi ou le règlement, la mort d’autrui. 1200 septims, 5h de travaux forcés et 3h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 12-1",
+        "title":  "Circonstances aggravantes :",
+        "text":  "1° Sur un membre de la famille, personne vulnérable ; 2° Sur représentant de l’État ou de la loi ; 3° Par un représentant de l’État ou de la loi en dehors de ses prérogatives de service ; 4° En raison de la race ou de la foi en l’un des 8 Divins ; 5° En bande organisée ; 6° En réunion ; 7° Pour intimider ou empêcher une victime un témoin ou partie civile de participer à un acte de justice ; 8° Avec préméditation."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 13",
+        "title":  "Acte de torture, mutilations ou barbarie [crimina]",
+        "text":  "Est considéré comme acte de torture, mutilation ou barbarie, le fait de soumettre une personne à des tortures ou à des actes de barbarie physique. Réparation à hauteur du dommage subi, 800 septims, 5h de travaux forcés et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 14",
+        "title":  "Actes de torture, mutilation ou barbarie aggravés [crimina]",
+        "text":  "Est considéré comme acte de torture, mutilation ou barbarie, le fait de soumettre une personne à des tortures ou à des actes de barbarie physique. Réparation à hauteur du dommage subi, 1000 septims, 5h de travaux forcés et 3h d’emprisonnement. Circonstances aggravantes : 1° Sur un membre de la famille, personne vulnérable ; 2° Sur représentant de l’État ou de la loi ; 3° Par un représentant de l’État ou de la loi ; 4° En raison de la race ou de la foi en l’un des 8 Divins ; 5° En bande organisée ; 6° En réunion ; 7° Pour intimider ou empêcher une victime un témoin ou partie civile de participer à un acte de justice ; 8° Pour obtenir une contrepartie."
+    },
+    {
+        "source":  "imperial",
+        "category":  "II - Atteintes aux personnes",
+        "article":  "Art. 15",
+        "title":  "Viol \u0026 Pédophilie [crimina]",
+        "text":  "Est considéré comme viol tout acte sexuel, de quelque nature qu’il soit, commis sur la personne d’autrui par violence, contrainte, menace ou surprise. Est considéré comme pédophilie tout acte sexuel effectué sur une personne n’ayant pas encore atteint le stade physique d’adulte. Peine de mort et saisie des biens."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 16",
+        "title":  "Destruction ou dégradation de bien public [délit mineur]",
+        "text":  "Est considéré comme destruction, dégradation ou détérioration de bien public, le fait de porter atteinte à un bien public de quelque manière que ce soit. 100 septims, 1h de travaux forcés et réparation du dommage subi."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 17",
+        "title":  "Destruction ou dégradation de bien privé [délit mineur]",
+        "text":  "Est considéré comme destruction, dégradation ou détérioration de bien privé, le fait de porter atteinte à un bien d’autrui de quelque manière que ce soit. 100 septims, réparation du dommage et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 18",
+        "title":  "Intrusion dans une propriété privée [délit]",
+        "text":  "Est considéré comme intrusion dans la propriété privée, le fait de s’introduire chez autrui sans y être invité à l’aide de manœuvres, menaces, voies de fait ou contrainte, hors les cas où la loi le permet. 50 septims et 30mn d’emprisonnement. Intrusion dans une propriété privée aggravée [délit] Est considéré comme intrusion dans la propriété privée aggravée, le fait de s’introduire chez autrui sans y être invité à l’aide de manœuvres, menaces, voies de fait ou contrainte, hors les cas où la loi le permet. 70 septims et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 18-1",
+        "title":  "Circonstances aggravantes :",
+        "text":  "1° En connaissance de l’unique présence d’une personne vulnérable ; 2° En connaissance de l’appartenance de la propriété par une personne dépositaire de l’autorité publique, représentant de l’État ou de la loi ; 3° En raison de la race ou de la foi d’un l’un des 8 divins ; 4° Par une personne dépositaire de l’autorité publique, représentant de l’État ou de la loi ; 5° À main armée."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 19",
+        "title":  "Vol simple [délit mineur]",
+        "text":  "Est considéré comme vol simple l’acquisition illégale du bien d’autrui. Réparation, 50 septims, réparation et 1h de travaux forcés. Vol aggravé [délit] Est considéré comme vol aggravé l’acquisition illégale du bien d’autrui sous les conditions suivantes. Réparation, 70 septims et 2h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 19-1",
+        "title":  "Circonstances aggravantes :",
+        "text":  "1° Vol sur personne vulnérable ; 2° Vol sur raison de la race ou de la foi en l’un des 8 divins ; 3° Vol sur personne dépositaire de l’autorité publique, représentant de l’État ou de la loi en service ; 4° Vol par une personne dépositaire de l’autorité publique, représentant de l’État ou de la loi ; 5° Vol à main armée ; 6° Vol avec préméditation. 7° Vol en bande organisée."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 20",
+        "title":  "Recel [délit]",
+        "text":  "Est considéré comme recel, le fait de dissimuler, de conserver, de transmettre ou d’agir comme intermédiaire pour transmettre quelque chose tout en sachant que cela provient d’un crimina ou d’un délit. 100 pièces d’or par bien et 2h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "III - Atteintes aux biens",
+        "article":  "Art. 20-1",
+        "title":  "Recel en bande organisée [crimina]",
+        "text":  "Est considéré comme recel en bande organisée, le fait de dissimuler, de conserver, de transmettre ou d’agir comme intermédiaire pour transmettre quelque chose tout en sachant que cela provient d’un crimina ou d’un délit avec tout groupement formé, ou toute entente établie en vue de la préparation, caractérisée par un ou plusieurs faits matériels, le recel. 150 pièces d’or par bien et 2h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 21",
+        "title":  "Recours abusifs [Délit mineur]",
+        "text":  "Est considéré comme recours abusif de la part de l’auteur, une intention malicieuse, une mauvaise foi, ou l’existence d’une erreur grossière équipollente au dol. 200 septims."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 22",
+        "title":  "Violation de la propriété de l’Empire [Délit mineur]",
+        "text":  "Est considéré comme violation de la propriété de l’Etat le fait de pénétrer sans autorisation officielle dans un bâtiment impérial ou public, sans considérer les zones accessibles à la population. 100 septims."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 23",
+        "title":  "Corruption passive [crimina]",
+        "text":  "Est considéré comme corruption passive, le fait pour un fonctionnaire impérial de demander ou d’accepter un avantage quelconque, pour lui ou pour autrui, en échange de l’exécution ou de l’inexécution d’un acte de son mandat ou facilité par son mandat. Bannissement des offices publics, 1000 septims et 3h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 24",
+        "title":  "Corruption active [crimina]",
+        "text":  "Est considéré comme corruption active, le fait pour une personne de rémunérer l’accomplissement ou le non-accomplissement d’un tel acte par un fonctionnaire impérial. Bannissement des offices publics, 2000 septims, 2h de travaux forcés et 2h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 25",
+        "title":  "Abus de pouvoir public [délit]",
+        "text":  "Est considéré comme abus de pouvoir public, le fait par une personne dépositaire de l’autorité impériale, agissant dans l’exercice de ses fonctions, d’user des prérogatives, liées à ses fonctions, à des fins personnelles. Bannissement des offices publics, 500 septims, 2h de travaux forcés et 2h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 26",
+        "title":  "Usurpation de fonction [délit]",
+        "text":  "Constitue le fait, par toute personne agissant sans titre, de s’immiscer dans l’exercice d’une fonction impériale ou fonction réglementée accomplissant l’un des actes réservés au titulaire de cette fonction. 500 septims et 3h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 28",
+        "title":  "Usage non-autorisé de matériel impérial [crimina]",
+        "text":  "Est considéré comme usage non-autorisé de matériel impérial toute détention d’une arme, armure ou tout autre équipement impérial par une personne non-autorisée. Saisie des biens, 150 septims par pièce d’équipement et 30mn de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "IV - Atteintes portées aux services impériaux",
+        "article":  "Art. 29",
+        "title":  "Divulgation d’information secrètes [crimina]",
+        "text":  "Constitue le fait de diffuser une information ou un document protégé par le secret impérial. Le secret est attribuable sur un document ou par voie orale par le Gouverneur ou le Légat, ou l’un de leurs représentants et peut-être levé par celui qui l’a instauré. 1000 septims et 5h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 30",
+        "title":  "Dissimulation du visage [Contravention]",
+        "text":  "La dissimulation du visage sur la voie publique est strictement interdite. 20 septims."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 31",
+        "title":  "Exhibition [Délit mineur]",
+        "text":  "Est considéré comme exhibition, le fait d’exhiber ses organes génitaux ou d’exécuter un acte sexuel à la vue d’autrui dans un lieu public. 50 septims et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 32",
+        "title":  "État d’ivresse manifeste sur la voie publique [Contravention]",
+        "text":  "Est considéré comme état d’ivresse manifeste sur la voie publique, le fait pour toute personne de se trouver ivre sur la voie publique. Appréciée par les forces de l’ordre selon la situation."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 33",
+        "title":  "Trouble à l’ordre public [Contravention]",
+        "text":  "Constitue un trouble à l’ordre public, une ivresse publique et manifeste, un tapage ou autres actions qui mènent au trouble de la sécurité publique ou à la quiétude. Appréciée par les forces de l’ordre selon la situation."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 34",
+        "title":  "Rassemblement illégal [Délit mineur]",
+        "text":  "Est considéré comme rassemblement illégal, un attroupement d’au moins 10 personnes, sur la voie publique ou dans un lieu public, susceptible de troubler l’ordre public. 25 septims et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 35",
+        "title":  "Association de malfaiteur [délit]",
+        "text":  "Constitue une association de malfaiteurs tout groupement formé ou entente établie en vue de la préparation, caractérisée par un ou plusieurs faits matériels, d’un ou plusieurs criminas ou d’un ou plusieurs délits. 100 septims et 2h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 36",
+        "title":  "Abus de pouvoir [délit]",
+        "text":  "Un abus de pouvoir est l’exercice excessif d’un pouvoir conféré par un statut. Il s’agit de l’utilisation de capacités en dehors du champ d’action donné, d’outrepasser ses prérogatives. L’utilisation anormale des pouvoirs donnés par une fonction est une faute grave amenant au licenciement. 500 septims et 3h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 37",
+        "title":  "Exercice illégal d’une profession réglementée [délit]",
+        "text":  "Constitue le fait de prendre part à des pratiques ou des procédés quels qu’ils soient sans titulaire d’un titre nécessaire à l’exercice de la fonction. À l’appréciation de l’autorité locale. Professions réglementées : 1° Commerces ; 2° Alchimiste ; 3° Guérisseur ; 4° Chasseur."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 38",
+        "title":  "Divulgation d’information secrète [crimina]",
+        "text":  "Constitue le fait de diffuser une information ou un document protégé par le secret professionnel, le secret des affaires, le secret industriel, religieux ou le secret médical sans autorisation de l’émetteur du secret. 500 septims et 3h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 39",
+        "title":  "Refus d’obtempérer [Délit mineur]",
+        "text":  "Le fait, pour toute personne, d’omettre d’obtempérer à une sommation de s’arrêter émanant d’un représentant impérial s’étant présenté comme tel par voie orale ou portant l’uniforme de la Légion. 50 septims et 1h de travaux forcés. Peut être puni d’une mise en étable des cheval et du retrait de la charrette."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 40",
+        "title":  "Fabrication ou vente de substances illégales [crimina]",
+        "text":  "La fabrication ou la vente de poisons, Skooma et sucre-lune est interdite. 250 septims par unité et 3h de travaux forcés pour le tout."
+    },
+    {
+        "source":  "imperial",
+        "category":  "V - Atteintes portées à la société",
+        "article":  "Art. 41",
+        "title":  "Fausse Alerte [délit]",
+        "text":  "Le fait pour toute personne, de signaler de faux évènements pouvant troubler l’ordre public. 100 septims et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VI - Atteintes à l’Empire",
+        "article":  "Art. 42",
+        "title":  "Terrorisme [crimina]",
+        "text":  "Constituent des actes de terrorisme, les infractions commises intentionnellement en relation avec une entreprise individuelle ou collective ayant pour but de troubler gravement l’ordre public par l’intimidation ou la terreur. Peine de mort et saisie des biens."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VI - Atteintes à l’Empire",
+        "article":  "Art. 43",
+        "title":  "Conspiration [crimina]",
+        "text":  "Est considéré comme une union entre plusieurs personnes pour renverser le pouvoir établi, l’organisation ou la stabilité de toutes entités morales ou physiques. Peine de mort et saisie des biens."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VI - Atteintes à l’Empire",
+        "article":  "Art. 44",
+        "title":  "Espionnage [crimina]",
+        "text":  "Est considéré comme espion toute personne cherchant à découvrir sans autorisation des secrets liés à l’Empire ou à un commerce situé sur territoire impérial. 1000 septims et 5h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 45",
+        "title":  "Outrage au Gouverneur/Légat [crimina]",
+        "text":  "Est considéré comme outrage au Gouverneur, le fait de porter atteinte à la dignité ou au respect de sa personne ou de son titre par paroles, gestes ou menaces, par écrit ou images de toutes natures, publics ou privés ou par l’envoi d’objets quelconques jugés insultants adressés au Gouverneur ou au Légat. 500 septims et 3h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 46",
+        "title":  "Outrage à l’Empire [crimina]",
+        "text":  "Est considéré comme outrage à l’Empire, le fait de porter atteinte à sa dignité ou au respect des instances de l’Etat, dont la Légion et ses hommes, par paroles, gestes ou menaces, par écrit ou images de toutes natures, publics ou privés ou par l’envoi d’objets quelconques jugés insultants adressés à la Légion ou à l’un des représentants impériaux. 200 septims et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 47",
+        "title":  "Non acquittement d’une peine pécuniaire [délit mineur]",
+        "text":  "Est considéré comme non acquittement le fait de ne pas payer une amende pendant plus 7 jours. Doublement de l’amende et 1h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 48",
+        "title":  "Non respect d’une décision de justice [délit]",
+        "text":  "Est considéré comme non respect d’une décision de justice, un manquement à une obligation, interdiction ou restriction de la part d’un condamné. À l’appréciation du juge."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 49",
+        "title":  "Entrave à la justice [délit]",
+        "text":  "Est considéré comme entrave à l’exercice de la justice, un délit d’interférence dans le travail des officiels de l’Empire, en tant que tiers, par interférence physique ou par mensonge. 50 septims et 1h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 50",
+        "title":  "Faux [crimina]",
+        "text":  "Est considéré comme forgeage de documents toute création d’un document par une quelconque personne hormis l’autorité légale autorisée à fabriquer lesdits documents. 500 septims et 2h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 51",
+        "title":  "Usage de faux [crimina]",
+        "text":  "Est considéré comme usage de faux toute utilisation d’un document issu de forgeage. 250 septims et 2h d’emprisonnement."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 52",
+        "title":  "Parjure [délit]",
+        "text":  "Est considéré comme parjure, le fait de mentir, ou produire de faux témoignages oraux ou écrits devant un tribunal. 200 septims et 2h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 53",
+        "title":  "Évasion [crimina]",
+        "text":  "Constitue une évasion punissable le fait, par un détenu, de se soustraire à la garde à laquelle il est soumis. 200 septims et 1h de travaux forcés. Pour l’application du présent paragraphe, est regardée comme détenue toute personne : 1° Qui est placée en garde à vue ; 2° Qui se trouve en instance ou en cours de présentation à l’autorité judiciaire à l’issue d’une garde à vue ou en exécution d’un mandat d’amener ou d’arrêt ; 3° Qui s’est vu notifier un mandat d’arrêt continuant de produire effet ; 4° Qui exécute une peine privative de liberté ou qui a été arrêtée pour exécuter cette peine ; Constitue également une évasion le fait : 5° Pour un détenu placé dans un établissement sanitaire, religieux ou hospitalier, de se soustraire à la surveillance à laquelle il est soumis ; 6° Pour tout condamné, de se soustraire au contrôle auquel il est soumis alors qu’il a fait l’objet d’une décision soit de placement à l’extérieur d’un établissement pénitentiaire, soit de détention à domicile ou qu’il bénéficie soit du régime de la semi-liberté, soit d’une permission de sortir ; 7° Pour tout condamné, de ne pas réintégrer l’établissement pénitentiaire à l’issue d’une mesure de suspension ou de fractionnement de l’emprisonnement, de placement à l’extérieur, de semi-liberté ou de permission de sortir."
+    },
+    {
+        "source":  "imperial",
+        "category":  "VII - Atteintes au Gouvernement",
+        "article":  "Art. 54",
+        "title":  "Port d’arme",
+        "text":  "Le port de l’arme est autorisé sauf pour les armes citées dans les dispositions du chapitre X."
+    },
+    {
+        "source":  "imperial",
+        "category":  "X - Du Culte",
+        "article":  "Art. 55",
+        "title":  "Religion Officielle [délit]",
+        "text":  "Le Culte des 8 Divins est la religion officielle de l’Empire. Toute adoration de Talos est prohibée. 30 minutes de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "X - Du Culte",
+        "article":  "Art. 56",
+        "title":  "Des autres religions.",
+        "text":  "Les adorations d’autres divinités sont autorisées, à condition qu’elles ne soient pas d’origine daedrique ou vénèrent un daedra."
+    },
+    {
+        "source":  "imperial",
+        "category":  "X - Du Culte",
+        "article":  "Art. 57",
+        "title":  "Culte Daedrique [crimina]",
+        "text":  "L’adoration directe ou indirecte d’un Daedra, la tentative d’invocation ou les rituels qui y sont liés sont punis de la peine de mort et de la saisie des biens."
+    },
+    {
+        "source":  "imperial",
+        "category":  "X - Du Culte",
+        "article":  "Art. 58",
+        "title":  "Possession d’artefact daedrique [crimina]",
+        "text":  "Toute possession d’un artefact daedrique est puni de la saisie de l’artefact, 500 septims d’amende et de 2h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "X - Du Culte",
+        "article":  "Art. 59",
+        "title":  "Profanation de lieu saint [crimina]",
+        "text":  "Toute profanation d’un lieu ou d’une statue liée aux 8 Divins autorisés par l’article 51 est punie de 500 septims d’amende et de 3h de travaux forcés."
+    },
+    {
+        "source":  "imperial",
+        "category":  "XI - De l’Occulte et de la Magie",
+        "article":  "Art. 60",
+        "title":  "Vampires, lycans et autres créatures d’origine daedriques [crimina]",
+        "text":  "Les créatures d’origine daedriques sont punies de la peine de mort et de la saisie des biens."
+    },
+    {
+        "source":  "imperial",
+        "category":  "XI - De l’Occulte et de la Magie",
+        "article":  "Art. 61",
+        "title":  "Nécromancie [crimina]",
+        "text":  "Toute action jugée d’arts nécromantiques (possession de biens liés à la nécromancie, sorts, recherches, rituels, etc.) est punie de la peine de mort et de la saisie des biens."
+    },
+    {
+        "source":  "imperial",
+        "category":  "XI - De l’Occulte et de la Magie",
+        "article":  "Art. 62",
+        "title":  "Usage de magie de foudre [crimina]",
+        "text":  "Due à la nature inhumaine des sorts de foudre, toute utilisation de magie de foudre est strictement interdite et sera punie de 5h de travaux forcés et de 200 septims d’amende."
+    }
+]
+;
+const treatyLaws = [
+    {
+        article:"Article Premier",
+        title:"Reconnaissance mutuelle",
+        text:"Les Châtelleries d'Estemarche et de la Brèche se reconnaissent mutuellement comme entités souveraines, libres et indépendantes. Chacune s'engage à respecter l'intégrité de ses frontières, l'autorité de ses institutions et les droits de ses dirigeants sur leurs terres et leurs sujets."
+    },
+    {
+        article:"Article II",
+        title:"Défense mutuelle",
+        text:"Toute agression armée, invasion ou menace militaire visant l'une des deux Châtelleries est considérée comme une atteinte à la sécurité commune. Les deux parties s'engagent alors à se porter assistance selon leurs moyens, par l'envoi de troupes, de ravitaillement, de renseignements ou de tout autre soutien nécessaire à la préservation de la paix et de la souveraineté du territoire menacé."
+    },
+    {
+        article:"Article III",
+        title:"Coopération des gardes frontaliers",
+        text:"Les gardes d'Estemarche et de la Brèche maintiennent une coopération régulière sur les territoires frontaliers communs. Ils peuvent échanger renseignements, signalements et informations relatives aux menaces pesant sur la sécurité des voyageurs, marchands et habitants des régions limitrophes. Des patrouilles coordonnées peuvent être organisées lorsque les autorités des deux Châtelleries le jugent nécessaire."
+    },
+    {
+        article:"Article IV",
+        title:"Criminels et fugitifs",
+        text:"Les avis de recherche émis par l'une des Châtelleries sont transmis aux autorités de l'autre dans les meilleurs délais. Tout individu recherché pour crime, brigandage, meurtre, trahison ou autre délit grave et appréhendé sur le territoire de l'une des parties peut être remis aux autorités compétentes de la Châtellerie requérante. La restitution des fugitifs s'effectue sous bonne garde aux portes de la ville ou du fort désigné, après vérification de leur identité et des motifs de leur recherche."
+    },
+    {
+        article:"Article V",
+        title:"Non-ingérence",
+        text:"Aucune des parties ne peut intervenir dans les affaires intérieures, judiciaires, militaires ou administratives de l'autre sans invitation ou consentement explicite. Le présent pacte ne saurait être interprété comme une soumission de l'une des Châtelleries à l'autre, mais comme une alliance entre puissances souveraines et égales."
+    },
+    {
+        article:"Article VI",
+        title:"Garantie des souverainetés",
+        text:"Les signataires garantissent mutuellement la souveraineté, l'intégrité territoriale et les droits légitimes de gouvernance de chacune des Châtelleries. Toute tentative visant à remettre en cause l'existence, l'indépendance ou les frontières reconnues de l'une des parties est considérée comme contraire à l'esprit du présent pacte."
+    }
+].map(law => ({...law, source:"treaty", category:"Pacte de Défense et de Coopération entre les Châtelleries d'Estemarche et de la Brèche"}));
+const allLaws = [
+    ...localLaws.map(law => ({...law, source:"local", category:"Lois locales - Estemarche / Vendeaume"})),
+    ...[
+        {
+            article:"Arrêté local I",
+            title:"Casque, capuche ou masque au Palais des Rois",
+            text:"Le port de casque, capuche ou masque à l'intérieur du Palais des Rois est interdit. Après avertissement, l'infraction entraîne une amende de 250 septims. Des sanctions plus lourdes peuvent être appliquées en cas de récidive ou de menace réelle pour la sécurité."
+        },
+        {
+            article:"Arrêté local II",
+            title:"Port ostentatoire ou usage de bâton magique",
+            text:"Le port visible ou l'utilisation de tout bâton magique est interdit dans la Châtellerie d'Estemarche, sauf pour les académiciens de l'Académie de Fortdhiver. L'infraction entraîne une amende de 2500 septims et la confiscation du bâton. Des sanctions plus lourdes peuvent être appliquées en cas de récidive ou de menace réelle."
+        },
+        {
+            article:"Arrêté local III",
+            title:"Affichage sauvage ou non autorisé",
+            text:"Tout affichage sans autorisation préalable de la Cour de Vendeaume ou d'un haut-gradé de la garde est considéré comme sauvage et entraîne une amende de 1000 septims. S'il est jugé dangereux pour l'intégrité ou la paix de la châtellerie au regard des réglementations impériales, il est considéré comme illégal et entraîne une amende de 4000 septims. Des sanctions plus lourdes peuvent être appliquées en cas de récidive ou de menace réelle."
+        }
+    ].map(law => ({...law, source:"extraLocal", category:"Arrêtés locaux supplémentaires"})),
+    ...treatyLaws,
+    ...imperialLaws
+];
+const selectedLawKeys = new Set();
+let isRestoringForm = false;
+
+function lawKey(law){
+return law.source+"|"+law.article+"|"+law.title;
+}
+
+function formatDate(d){
+return days[d.getDay()]+" "+d.getDate()+" de "+months[d.getMonth()]+", 4E 226";
+}
+
+function formatDateTimeInput(d){
+const year = d.getFullYear();
+const month = String(d.getMonth()+1).padStart(2, "0");
+const day = String(d.getDate()).padStart(2, "0");
+const hour = String(d.getHours()).padStart(2, "0");
+const minute = String(d.getMinutes()).padStart(2, "0");
+return year+"-"+month+"-"+day+"T"+hour+":"+minute;
+}
+
+function fillCurrentDateTime(force = false){
+const field = document.getElementById("datetime");
+
+if(force || !field.value){
+    field.value = formatDateTimeInput(new Date());
+}
+}
+
+function formatSkyrimHour(d){
+let hour = d.getHours();
+return hour+"ème sablier";
+}
+
+function formatIndiv(i){
+let out = `• **${i.name || "Individu non identifié"}**`;
+let meta = [];
+
+if(i.race && i.race !== "Race") meta.push(i.race);
+if(i.sex && i.sex !== "Sexe") meta.push(i.sex);
+if(i.role && i.role !== "Rôle") meta.push(i.role);
+
+if(meta.length){
+out += ` *(${meta.join(" • ")})*`;
+}
+
+if(i.phys){
+out += ` | *${i.phys}*`;
+}
+
+return out;
+}
+
+function formatReportPerson(i){
+let role = i.role && i.role !== "Rôle" ? i.role : "Rôle non renseigné";
+let out = `• *${role}* : **${i.name || "Individu non identifié"}**`;
+let meta = [];
+
+if(i.race && i.race !== "Race") meta.push(i.race);
+if(i.sex && i.sex !== "Sexe") meta.push(i.sex);
+
+if(meta.length){
+out += ` *(${meta.join(" • ")})*`;
+}
+
+if(i.phys){
+out += ` | *${i.phys}*`;
+}
+
+return out;
+}
+
+function plainReportBlock(value){
+return cleanValue(value, "Non renseigné.");
+}
+
+function priorityClass(value){
+const normalized = (value || "").toLowerCase();
+if(normalized === "moyenne") return "medium";
+if(normalized === "haute") return "high";
+if(normalized === "critique") return "critical";
+return "low";
+}
+
+function priorityBadge(value){
+const normalized = (value || "").toLowerCase();
+if(normalized === "moyenne") return "🟡";
+if(normalized === "haute") return "🟠";
+if(normalized === "critique") return "🔴";
+return "🟢";
+}
+
+function normalizeGrade(value){
+return ["Garde", "Sergent", "Lieutenant", "Capitaine"].includes(value) ? value : "Garde";
+}
+
+function updatePriorityDot(){
+const dot = document.getElementById("priorityDot");
+const field = document.getElementById("reportPriority");
+if(!dot || !field) return;
+dot.className = "priority-dot "+priorityClass(field.value);
+}
+
+function hasText(value){
+return Boolean(value && String(value).trim());
+}
+
+function reportSection(title, content){
+if(!hasText(content)) return "";
+return "### "+title+"\n"+textBlock(String(content).trim())+"\n\n";
+}
+
+function buildReportHeader(typeLabel, title, nom, dateText, lieu, priority, status){
+return "**Auteur :** "+cleanValue(nom, "Non renseigné")+"\n"+
+"**Date :** "+dateText+"\n"+
+"**Lieu :** "+lieu+"\n"+
+"**Priorité :** "+priorityBadge(priority)+" "+priority+"\n"+
+"**Statut :** "+status+"\n\n"+
+"---\n\n";
+}
+
+function buildArrestationHeader(title, nom, dateText, lieu){
+return "**Auteur :** "+cleanValue(nom, "Non renseigné")+"\n"+
+"**Date :** "+dateText+"\n"+
+"**Lieu :** "+lieu+"\n\n"+
+"---\n\n";
+}
+
+function cleanValue(value, fallback){
+return value && value.trim() ? value.trim() : fallback;
+}
+
+function quoteLines(value){
+return value.split("\n").map(line => line.trim() ? "> "+line : "> ").join("\n");
+}
+
+function textBlock(value){
+return quoteLines(value);
+}
+
+function escapeHtml(value){
+return String(value).replace(/[&<>"]/g, char => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;"}[char]));
+}
+
+function formatLawDetailText(value, category){
+let text = String(value || "").trim();
+let normalized = text
+    .replace(/\s+(?=(?:[1-9]|1[0-9])(?:[\).:\/-]|[°º])\s*)/g, "\n")
+    .replace(/\n{3,}/g, "\n\n");
+let lines = normalized.split(/\n+/).map(line => line.trim()).filter(Boolean);
+let html = category ? "<strong>"+escapeHtml(category)+"</strong>" : "";
+let listItems = [];
+
+function flushList(){
+    if(!listItems.length) return;
+    html += "<ul class=\"law-bullet-list\">"+listItems.join("")+"</ul>";
+    listItems = [];
+}
+
+lines.forEach(line => {
+    const numbered = line.match(/^((?:[1-9]|1[0-9])(?:[\).:\/-]|[°º]))\s*(.+)$/);
+    if(numbered){
+        listItems.push("<li><span class=\"law-bullet-index\">"+escapeHtml(numbered[1])+"</span> "+escapeHtml(numbered[2])+"</li>");
+        return;
+    }
+
+    flushList();
+    html += "<p class=\"law-detail-paragraph\">"+escapeHtml(line)+"</p>";
+});
+
+flushList();
+return html;
+}
+
+function formatWatchDateTime(value){
+if(!value) return "";
+let date = new Date(value);
+if(Number.isNaN(date.getTime())) return value;
+let skyrim = formatDate(date)+", "+formatSkyrimHour(date);
+let real = date.toLocaleDateString("fr-FR", {
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric"
+})+" "+date.toLocaleTimeString("fr-FR", {
+    hour:"2-digit",
+    minute:"2-digit"
+});
+return skyrim+" ("+real+")";
+}
+
+function renderLawGroup(targetId, lawsToRender){
+const target = document.getElementById(targetId);
+
+if(!lawsToRender.length){
+    target.innerHTML = '<p class="law-text">Aucun article trouvé.</p>';
+    return;
+}
+
+target.innerHTML = lawsToRender.map(law => {
+    const key = lawKey(law);
+    const checked = selectedLawKeys.has(key) ? "checked" : "";
+
+    return `
+<details class="law-item">
+<summary class="law-title">
+<input type="checkbox" class="law-check" data-key="${escapeHtml(key)}" ${checked} onclick="event.stopPropagation()" onchange="toggleLawSelection(this)">
+${escapeHtml(law.article)} - ${escapeHtml(law.title)}
+</summary>
+<div class="law-text">${formatLawDetailText(law.text, law.category)}</div>
+</details>
+`;
+}).join("");
+}
+
+function renderLawSearchResults(lawsToRender, search){
+const target = document.getElementById("lawSearchResults");
+
+if(!search){
+    target.innerHTML = "";
+    return;
+}
+
+if(!lawsToRender.length){
+    target.innerHTML = '<div class="law-result-text">Aucun article trouvé.</div>';
+    return;
+}
+
+target.innerHTML = lawsToRender.slice(0, 8).map(law => {
+    const key = lawKey(law);
+    const checked = selectedLawKeys.has(key) ? "checked" : "";
+    const source = law.source === "imperial" ? "Loi impériale / Bordeciel" : law.source === "extraLocal" ? "Arrêté local" : law.source === "treaty" ? "Pacte de châtelleries" : "Loi locale";
+    const isLong = law.text.length > 150;
+    const excerpt = isLong ? law.text.slice(0, 150)+"..." : law.text;
+    const content = isLong ? `
+<details class="law-result-detail">
+<summary>
+<span class="law-result-title">${escapeHtml(law.article)} - ${escapeHtml(law.title)}</span>
+<span class="law-result-meta">${escapeHtml(source)} · ${escapeHtml(law.category)}</span>
+<span class="law-result-text">${escapeHtml(excerpt)}</span>
+<span class="law-result-hint">Cliquer pour développer</span>
+</summary>
+<div class="law-result-full" onclick="this.closest('.law-result-detail').open = false">${formatLawDetailText(law.text)}</div>
+</details>
+` : `
+<span class="law-result-title">${escapeHtml(law.article)} - ${escapeHtml(law.title)}</span>
+<span class="law-result-meta">${escapeHtml(source)} · ${escapeHtml(law.category)}</span>
+<div class="law-result-text">${formatLawDetailText(law.text)}</div>
+`;
+
+    return `
+<div class="law-result">
+<input type="checkbox" data-key="${escapeHtml(key)}" ${checked} onclick="event.stopPropagation()" onchange="toggleLawSelection(this)">
+<div>
+${content}
+</div>
+</div>
+`;
+}).join("");
+}
+
+function lawSourceLabel(law){
+if(law.source === "imperial") return "Lois impériales / Bordeciel";
+if(law.source === "extraLocal") return "Arrêtés locaux supplémentaires";
+if(law.source === "treaty") return "Pactes et accords de châtelleries";
+return "Lois locales - Estemarche / Vendeaume";
+}
+
+function renderLawCodex(){
+const target = document.getElementById("lawCodexList");
+if(!target) return;
+
+const searchField = document.getElementById("lawCodexSearch");
+const search = (searchField ? searchField.value : "").trim().toLowerCase();
+const filtered = allLaws.filter(law => {
+    const haystack = [lawSourceLabel(law), law.category, law.article, law.title, law.text].join(" ").toLowerCase();
+    return !search || haystack.includes(search);
+});
+
+if(!filtered.length){
+    target.innerHTML = '<p class="law-text">Aucune loi trouvée.</p>';
+    return;
+}
+
+target.innerHTML = filtered.map(law => {
+    return `
+<details class="law-item law-codex-item">
+<summary class="law-title">
+<span>${escapeHtml(law.article)} - ${escapeHtml(law.title)}<span class="law-codex-source">${escapeHtml(lawSourceLabel(law))} · ${escapeHtml(law.category)}</span></span>
+</summary>
+<div class="law-text">${formatLawDetailText(law.text)}</div>
+</details>
+`;
+}).join("");
+}
+
+function openLawCodex(){
+renderLawCodex();
+document.getElementById("lawCodexModal").classList.add("open");
+const searchField = document.getElementById("lawCodexSearch");
+if(searchField) searchField.focus();
+}
+
+function closeLawCodex(event){
+const modal = document.getElementById("lawCodexModal");
+if(event && event.target !== modal) return;
+modal.classList.remove("open");
+}
+
+function renderLaws(){
+const search = document.getElementById("lawSearch").value.trim().toLowerCase();
+const filtered = allLaws.filter(law => {
+    const haystack = [law.source, law.category, law.article, law.title, law.text].join(" ").toLowerCase();
+    return !search || haystack.includes(search);
+});
+
+renderLawSearchResults(filtered, search);
+renderLawGroup("localLawList", filtered.filter(law => law.source === "local"));
+renderLawGroup("imperialLawList", filtered.filter(law => law.source === "imperial"));
+renderLawGroup("extraLocalLawList", filtered.filter(law => law.source === "extraLocal"));
+renderLawGroup("treatyLawList", filtered.filter(law => law.source === "treaty"));
+renderSelectedLawsSummary();
+updateLiveOutput();
+}
+
+function toggleLawSelection(input){
+if(input.checked){
+    selectedLawKeys.add(input.dataset.key);
+} else {
+    selectedLawKeys.delete(input.dataset.key);
+}
+
+renderSelectedLawsSummary();
+handleFormChange();
+}
+
+function renderSelectedLawsSummary(){
+const summary = document.getElementById("selectedLawsSummary");
+const selected = allLaws.filter(law => selectedLawKeys.has(lawKey(law)));
+
+if(!selected.length){
+    summary.innerHTML = "<strong>Articles sélectionnés</strong>Aucun article sélectionné.";
+    return;
+}
+
+summary.innerHTML =
+"<strong>Articles sélectionnés ("+selected.length+")</strong>"+
+"<ul>"+selected.map(law => "<li>"+escapeHtml(law.article+" - "+law.title)+"</li>").join("")+"</ul>";
+}
+
+function getSelectedLaws(){
+let selected = allLaws.filter(law => selectedLawKeys.has(lawKey(law))).map(law => {
+    const source = law.source === "imperial" ? "Loi impériale" : law.source === "extraLocal" ? "Arrêté local" : law.source === "treaty" ? "Pacte" : "Loi locale";
+    return "• **"+source+" - "+law.article+" - "+law.title+"**";
+});
+let customLaw = document.getElementById("customLaw").value.trim();
+
+if(customLaw){
+    selected.push(...customLaw.split("\n").filter(Boolean).map(line => "• **"+line.trim()+"**"));
+}
+
+return selected;
+}
+
+function collectFormState(){
+return {
+    mode,
+    nom: document.getElementById("nom").value,
+    lieu: document.getElementById("lieu").value,
+    datetime: document.getElementById("datetime").value,
+    reportType: document.getElementById("reportType").value,
+    reportTitle: document.getElementById("reportTitle").value,
+    reportPriority: document.getElementById("reportPriority").value,
+    reportStatus: document.getElementById("reportStatus").value,
+    reportGrade: document.getElementById("reportGrade").value,
+    rapport: document.getElementById("rapport").value,
+    confirmedFacts: document.getElementById("confirmedFacts").value,
+    verifyInfo: document.getElementById("verifyInfo").value,
+    measuresTaken: document.getElementById("measuresTaken").value,
+    recommendedNext: document.getElementById("recommendedNext").value,
+    faits: document.getElementById("faits").value,
+    decision: document.getElementById("decision").value,
+    jailHours: document.getElementById("jailHours").value,
+    fineAmount: document.getElementById("fineAmount").value,
+    laborHours: document.getElementById("laborHours").value,
+    customLaw: document.getElementById("customLaw").value,
+    lawSearch: document.getElementById("lawSearch").value,
+    selectedLawKeys: [...selectedLawKeys],
+    indivs: getIndivs()
+};
+}
+
+function saveFormState(){
+if(!canSaveForm) return;
+if(isRestoringForm) return;
+saveGuardName();
+localStorage.setItem(formStorageKey, JSON.stringify(collectFormState()));
+}
+
+function saveGuardName(){
+try {
+    localStorage.setItem(guardNameStorageKey, document.getElementById("nom").value);
+} catch(e) {}
+}
+
+function restoreGuardName(){
+try {
+    document.getElementById("nom").value = localStorage.getItem(guardNameStorageKey) || "";
+} catch(e) {}
+}
+
+function savePersonalNotes(){
+try {
+    localStorage.setItem(personalNotesStorageKey, document.getElementById("personalNotes").value);
+} catch(e) {}
+}
+
+function restorePersonalNotes(){
+try {
+    document.getElementById("personalNotes").value = localStorage.getItem(personalNotesStorageKey) || "";
+} catch(e) {}
+}
+
+function setWatchStatus(message){
+const status = document.getElementById("watchStatus");
+if(status) status.textContent = message;
+}
+
+function getGuardPassword(){
+return document.getElementById("guardPassword").value.trim();
+}
+
+function setGuardPasswordState(state){
+const button = document.getElementById("guardPasswordCheck");
+if(!button) return;
+button.classList.remove("auth-ok", "auth-bad");
+if(state === "ok") button.classList.add("auth-ok");
+if(state === "bad") button.classList.add("auth-bad");
+}
+
+function markGuardPasswordUnknown(){
+setGuardPasswordState("");
+}
+
+async function validateGuardPassword(showSuccess = false, statusTarget = "watch"){
+const password = getGuardPassword();
+const setStatus = statusTarget === "map" ? setMapStatus : statusTarget === "org" ? setOrgStatus : setWatchStatus;
+
+if(!password){
+    setGuardPasswordState("bad");
+    setStatus("Mot de passe garde requis.");
+    return false;
+}
+
+if(!supabaseClient){
+    setGuardPasswordState("bad");
+    setStatus("Vérification impossible : la synchronisation n'est pas prête.");
+    return false;
+}
+
+const { data, error } = await supabaseClient.rpc("guard_password_ok", {
+    p_password: password
+});
+
+if(error || data !== true){
+    setGuardPasswordState("bad");
+    setStatus("Mot de passe garde incorrect.");
+    return false;
+}
+
+setGuardPasswordState("ok");
+try {
+    localStorage.setItem(guardPasswordStorageKey, password);
+} catch(e) {}
+if(showSuccess) setStatus("Mot de passe garde validé et mémorisé sur ce navigateur.");
+return true;
+}
+
+async function rememberGuardPassword(){
+await validateGuardPassword(true, "watch");
+}
+
+async function ensureGuardPasswordReady(statusTarget = "watch"){
+if(statusTarget === "watch" && (!watchBoardOnline || !supabaseClient)){
+    setGuardPasswordState("bad");
+    setWatchStatus("Avis de garde indisponibles : synchronisation non prête.");
+    return false;
+}
+
+if(statusTarget === "map" && (!serviceMapsOnline || !supabaseClient)){
+    setGuardPasswordState("bad");
+    setMapStatus("Cartes indisponibles : synchronisation non prête.");
+    return false;
+}
+
+if(statusTarget === "org" && (!orgChartOnline || !supabaseClient)){
+    setGuardPasswordState("bad");
+    setOrgStatus("Organigramme indisponible : synchronisation non prête.");
+    return false;
+}
+
+return validateGuardPassword(false, statusTarget);
+}
+
+function restoreGuardPassword(){
+try {
+    document.getElementById("guardPassword").value = localStorage.getItem(guardPasswordStorageKey) || "";
+    markGuardPasswordUnknown();
+} catch(e) {}
+}
+
+function createSupabaseClient(){
+if(!window.supabase || !window.supabase.createClient){
+    setWatchStatus("Mode local : synchronisation non chargée.");
+    return null;
+}
+
+return window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+}
+
+function rowToWatchEntry(row){
+return normalizeWatchEntry({
+    id: row.id,
+    name: row.name,
+    race: row.race,
+    sex: row.sex,
+    phys: row.phys,
+    context: row.context,
+    lastSeenAt: row.last_seen_at,
+    reason: row.reason,
+    details: row.details
+});
+}
+
+function watchEntryToPayload(type, item){
+return {
+    id: item.id || null,
+    notice_type: type,
+    name: item.name,
+    race: item.race,
+    sex: item.sex,
+    phys: item.phys,
+    context: item.context,
+    last_seen_at: item.lastSeenAt,
+    reason: item.reason,
+    details: item.details
+};
+}
+
+async function loadWatchBoardFromSupabase(){
+if(!supabaseClient){
+    restoreWatchBoard();
+    return;
+}
+
+const { data, error } = await supabaseClient
+    .from("guard_notices")
+    .select("*")
+    .order("updated_at", { ascending:false });
+
+if(error){
+    watchBoardOnline = false;
+    restoreWatchBoard();
+    setWatchStatus("Mode local : les avis partagés ne sont pas prêts.");
+    return;
+}
+
+watchBoard = { wanted: [], banned: [] };
+(data || []).forEach(row => {
+    const type = row.notice_type === "banned" ? "banned" : "wanted";
+    watchBoard[type].push(rowToWatchEntry(row));
+});
+
+watchBoardOnline = true;
+saveWatchBoardCache();
+renderWatchBoard();
+setWatchStatus("Avis synchronisés.");
+}
+
+async function syncWatchNotice(type, item){
+if(!watchBoardOnline || !supabaseClient){
+    setWatchStatus("Modification bloquée : synchronisation non prête.");
+    return null;
+}
+
+if(!await validateGuardPassword(false, "watch")){
+    setWatchStatus("Mot de passe garde requis ou incorrect pour modifier les avis.");
+    return null;
+}
+
+const password = getGuardPassword();
+const { data, error } = await supabaseClient.rpc("save_guard_notice", {
+    p_password: password,
+    p_notice: watchEntryToPayload(type, item)
+});
+
+if(error){
+    setGuardPasswordState("bad");
+    setWatchStatus("Modification refusée : mot de passe incorrect ou table non prête.");
+    return null;
+}
+
+setGuardPasswordState("ok");
+return normalizeWatchEntry({ ...item, id: data });
+}
+
+async function deleteWatchNotice(type, item){
+if(!watchBoardOnline || !supabaseClient){
+    setWatchStatus("Suppression bloquée : synchronisation non prête.");
+    return false;
+}
+
+if(!await validateGuardPassword(false, "watch")){
+    setWatchStatus("Mot de passe garde requis ou incorrect pour supprimer un avis.");
+    return false;
+}
+
+const password = getGuardPassword();
+const { error } = await supabaseClient.rpc("delete_guard_notice", {
+    p_password: password,
+    p_notice_id: item.id
+});
+
+if(error){
+    setGuardPasswordState("bad");
+    setWatchStatus("Suppression refusée : mot de passe incorrect ou table non prête.");
+    return false;
+}
+
+setGuardPasswordState("ok");
+return true;
+}
+
+async function initWatchBoardSync(){
+restoreGuardPassword();
+supabaseClient = createSupabaseClient();
+await loadWatchBoardFromSupabase();
+await loadServiceMapsFromSupabase();
+await loadOrgChartFromSupabase();
+
+if(supabaseClient){
+    setInterval(loadWatchBoardFromSupabase, 30000);
+    setInterval(loadServiceMapsFromSupabase, 60000);
+    setInterval(loadOrgChartFromSupabase, 60000);
+}
+}
+
+function setMapStatus(message){
+const status = document.getElementById("mapStatus");
+if(status) status.textContent = message;
+}
+
+function setOrgStatus(message){
+const status = document.getElementById("orgStatus");
+if(status) status.textContent = message;
+}
+
+function normalizeOrgMember(member){
+return {
+    id: member && member.id ? String(member.id) : "org-"+Date.now()+"-"+Math.random().toString(16).slice(2),
+    parentId: member && member.parentId ? String(member.parentId) : "",
+    name: member && member.name ? String(member.name) : "",
+    race: member && member.race ? String(member.race) : "Race",
+    grade: member && ["Garde", "Sergent", "Lieutenant", "Capitaine"].includes(member.grade) ? member.grade : "Garde",
+    specialty: member && member.specialty ? String(member.specialty) : "",
+    role: member && member.role ? String(member.role) : "",
+    note: member && member.note ? String(member.note) : ""
+};
+}
+
+function loadOrgChart(){
+let saved = null;
+try {
+    saved = JSON.parse(localStorage.getItem(orgChartStorageKey));
+} catch(e) {
+    saved = null;
+}
+orgMembers = Array.isArray(saved) && saved.length
+    ? saved.map(normalizeOrgMember)
+    : defaultOrgMembers.map(normalizeOrgMember);
+}
+
+function saveOrgChart(){
+try {
+    localStorage.setItem(orgChartStorageKey, JSON.stringify(orgMembers));
+} catch(e) {}
+}
+
+function rowToOrgMember(row){
+return normalizeOrgMember({
+    id: row.id,
+    parentId: row.parent_id,
+    name: row.name,
+    race: row.race,
+    grade: row.grade,
+    specialty: row.specialty,
+    role: row.role,
+    note: row.note
+});
+}
+
+function orgMemberToPayload(member){
+return {
+    id: member.id || null,
+    parent_id: member.parentId || "",
+    name: member.name,
+    race: member.race,
+    grade: member.grade,
+    specialty: member.specialty,
+    role: member.role,
+    note: member.note
+};
+}
+
+async function loadOrgChartFromSupabase(){
+if(!supabaseClient){
+    loadOrgChart();
+    renderOrgChart();
+    setOrgStatus("Mode local : synchronisation non chargée.");
+    return;
+}
+
+const { data, error } = await supabaseClient
+    .from("guard_org_members")
+    .select("*")
+    .order("sort_order", { ascending:true })
+    .order("name", { ascending:true });
+
+if(error){
+    orgChartOnline = false;
+    loadOrgChart();
+    renderOrgChart();
+    setOrgStatus("Mode local : organigramme partagé non prêt.");
+    return;
+}
+
+orgChartOnline = true;
+orgMembers = (data || []).length ? data.map(rowToOrgMember) : defaultOrgMembers.map(normalizeOrgMember);
+saveOrgChart();
+renderOrgChart();
+setOrgStatus("Organigramme synchronisé.");
+}
+
+async function syncOrgMember(member){
+if(!orgChartOnline || !supabaseClient){
+    setOrgStatus("Modification locale : synchronisation non prête.");
+    return null;
+}
+
+if(!await validateGuardPassword(false, "org")){
+    setOrgStatus("Mot de passe garde requis ou incorrect pour modifier l'organigramme.");
+    return null;
+}
+
+const { data, error } = await supabaseClient.rpc("save_guard_org_member", {
+    p_password: getGuardPassword(),
+    p_member: orgMemberToPayload(member)
+});
+
+if(error){
+    setGuardPasswordState("bad");
+    setOrgStatus("Modification refusée : mot de passe incorrect ou table non prête.");
+    return null;
+}
+
+setGuardPasswordState("ok");
+return normalizeOrgMember({ ...member, id: data || member.id });
+}
+
+async function deleteOrgMemberFromSupabase(member){
+if(!orgChartOnline || !supabaseClient){
+    setOrgStatus("Suppression locale : synchronisation non prête.");
+    return false;
+}
+
+if(!await validateGuardPassword(false, "org")){
+    setOrgStatus("Mot de passe garde requis ou incorrect pour supprimer un membre.");
+    return false;
+}
+
+const { error } = await supabaseClient.rpc("delete_guard_org_member", {
+    p_password: getGuardPassword(),
+    p_member_id: member.id
+});
+
+if(error){
+    setGuardPasswordState("bad");
+    setOrgStatus("Suppression refusée : mot de passe incorrect ou table non prête.");
+    return false;
+}
+
+setGuardPasswordState("ok");
+return true;
+}
+
+function openOrgChart(){
+renderOrgChart();
+document.getElementById("orgChartModal").classList.add("open");
+setupOrgChartPan();
+centerOrgChartView();
+}
+
+function closeOrgChart(event){
+if(event && event.target !== document.getElementById("orgChartModal")) return;
+orgChartPanStart = null;
+const chart = document.getElementById("orgChartView");
+if(chart) chart.classList.remove("panning");
+document.getElementById("orgChartModal").classList.remove("open");
+}
+
+function centerOrgChartView(){
+const chart = document.getElementById("orgChartView");
+if(!chart) return;
+requestAnimationFrame(() => {
+    chart.scrollLeft = Math.max(0, (chart.scrollWidth - chart.clientWidth) / 2);
+    chart.scrollTop = 0;
+});
+}
+
+function getOrgChildren(parentId){
+return orgMembers
+    .filter(member => (member.parentId || "") === (parentId || ""))
+    .sort((a, b) => (orgRankOrder[a.grade] ?? 9) - (orgRankOrder[b.grade] ?? 9) || a.name.localeCompare(b.name));
+}
+
+function isOrgDescendant(memberId, possibleParentId){
+if(!memberId || !possibleParentId) return false;
+let current = orgMembers.find(member => member.id === possibleParentId);
+while(current){
+    if(current.parentId === memberId) return true;
+    current = orgMembers.find(member => member.id === current.parentId);
+}
+return false;
+}
+
+function renderOrgCard(member){
+const nameLength = (member.name || "").length;
+const nameClass = nameLength > 24 ? "very-long-name" : nameLength > 16 ? "long-name" : "";
+return `
+<div class="org-card" data-grade="${escapeHtml(member.grade)}">
+<span class="org-card-name ${nameClass}">${escapeHtml(member.name || "Sans nom")}</span>
+<div class="org-card-actions">
+<button type="button" onclick="openOrgEditor('${escapeHtml(member.id)}')" title="Modifier">✎</button>
+<button type="button" onclick="deleteOrgMember('${escapeHtml(member.id)}')" title="Supprimer">×</button>
+</div>
+<div class="org-info">
+<span><strong>Grade :</strong> ${escapeHtml(member.grade)}</span>
+<span><strong>Race :</strong> ${escapeHtml(member.race)}</span>
+${member.specialty ? "<span><strong>Spécialisation :</strong> "+escapeHtml(member.specialty)+"</span>" : ""}
+${member.role ? "<span><strong>Fonction :</strong> "+escapeHtml(member.role)+"</span>" : ""}
+${member.note ? "<span><strong>Note :</strong> "+escapeHtml(member.note)+"</span>" : ""}
+</div>
+</div>
+`;
+}
+
+function renderOrgGuardStack(guards){
+if(!guards.length) return "";
+const columnCount = guards.length > 10 ? 3 : guards.length > 5 ? 2 : 1;
+const perColumn = Math.ceil(guards.length / columnCount);
+let columns = [];
+
+for(let i = 0; i < columnCount; i++){
+    const chunk = guards.slice(i * perColumn, (i + 1) * perColumn);
+    if(chunk.length){
+        columns.push("<div class=\"org-guard-column\">"+chunk.map(renderOrgCard).join("")+"</div>");
+    }
+}
+
+return "<div class=\"org-guard-stack\">"+columns.join("")+"</div>";
+}
+
+function renderOrgSergeantColumn(sergeant){
+const guards = getOrgChildren(sergeant.id).filter(member => member.grade === "Garde");
+return `
+<div class="org-sergeant-column">
+${renderOrgCard(sergeant)}
+${renderOrgGuardStack(guards)}
+</div>
+`;
+}
+
+function renderOrgLieutenantBranch(lieutenant){
+const children = getOrgChildren(lieutenant.id);
+const sergeants = children.filter(member => member.grade === "Sergent");
+const directGuards = children.filter(member => member.grade === "Garde");
+const looseColumn = directGuards.length ? `
+<div class="org-sergeant-column">
+<div class="org-card" data-grade="Sergent">
+<span class="org-card-name">Sans sergent</span>
+<div class="org-info"><span><strong>Rattachement :</strong> ${escapeHtml(lieutenant.name)}</span></div>
+</div>
+${renderOrgGuardStack(directGuards)}
+</div>
+` : "";
+
+return `
+<div class="org-branch">
+${renderOrgCard(lieutenant)}
+${sergeants.length || looseColumn ? "<div class=\"org-sergeant-row\">"+sergeants.map(renderOrgSergeantColumn).join("")+looseColumn+"</div>" : ""}
+</div>
+`;
+}
+
+function renderOrgChart(){
+const target = document.getElementById("orgChartView");
+if(!target) return;
+const captains = orgMembers.filter(member => member.grade === "Capitaine").sort((a, b) => a.name.localeCompare(b.name));
+let lieutenants = orgMembers.filter(member => member.grade === "Lieutenant").sort((a, b) => a.name.localeCompare(b.name));
+const unassignedSergeants = orgMembers.filter(member => member.grade === "Sergent" && !orgMembers.some(parent => parent.id === member.parentId && parent.grade === "Lieutenant"));
+const unassignedGuards = orgMembers.filter(member => member.grade === "Garde" && !orgMembers.some(parent => parent.id === member.parentId && (parent.grade === "Sergent" || parent.grade === "Lieutenant")));
+
+if(!captains.length && !lieutenants.length && !unassignedSergeants.length && !unassignedGuards.length){
+    target.innerHTML = "<div class=\"org-empty\">Aucun membre dans l'organigramme.</div>";
+    return;
+}
+
+let fallbackBranch = "";
+if(unassignedSergeants.length || unassignedGuards.length){
+    fallbackBranch = `
+<div class="org-branch">
+<div class="org-card" data-grade="Lieutenant">
+<span class="org-card-name">Non affectés</span>
+<div class="org-info"><span><strong>Section :</strong> À classer</span></div>
+</div>
+<div class="org-sergeant-row">
+${unassignedSergeants.map(renderOrgSergeantColumn).join("")}
+${unassignedGuards.length ? `
+<div class="org-sergeant-column">
+<div class="org-card" data-grade="Sergent">
+<span class="org-card-name">Sans supérieur</span>
+<div class="org-info"><span><strong>Rattachement :</strong> À définir</span></div>
+</div>
+${renderOrgGuardStack(unassignedGuards)}
+</div>` : ""}
+</div>
+</div>`;
+}
+
+target.innerHTML = `
+<div class="org-board">
+${captains.length ? "<div class=\"org-command-row\">"+captains.map(renderOrgCard).join("")+"</div>" : ""}
+<div class="org-lieutenant-row">
+${lieutenants.map(renderOrgLieutenantBranch).join("")}
+${fallbackBranch}
+</div>
+</div>
+`;
+applyOrgChartZoom();
+}
+
+function applyOrgChartZoom(){
+const board = document.querySelector("#orgChartView .org-board");
+if(!board) return;
+board.style.zoom = orgChartZoom;
+}
+
+function resetOrgChartZoom(){
+orgChartZoom = 1;
+applyOrgChartZoom();
+const view = document.getElementById("orgChartView");
+if(view){
+    view.scrollLeft = 0;
+    view.scrollTop = 0;
+}
+}
+
+function handleOrgChartWheel(event){
+const view = document.getElementById("orgChartView");
+const board = document.querySelector("#orgChartView .org-board");
+if(!view || !board) return;
+event.preventDefault();
+
+const rect = view.getBoundingClientRect();
+const oldZoom = orgChartZoom;
+const pointerX = event.clientX - rect.left;
+const pointerY = event.clientY - rect.top;
+const contentX = (view.scrollLeft + pointerX) / oldZoom;
+const contentY = (view.scrollTop + pointerY) / oldZoom;
+const direction = event.deltaY < 0 ? 1 : -1;
+
+orgChartZoom = Math.max(0.55, Math.min(2.4, orgChartZoom + direction * 0.12));
+if(orgChartZoom === oldZoom) return;
+
+applyOrgChartZoom();
+requestAnimationFrame(() => {
+    view.scrollLeft = contentX * orgChartZoom - pointerX;
+    view.scrollTop = contentY * orgChartZoom - pointerY;
+});
+}
+
+function setupOrgChartPan(){
+const chart = document.getElementById("orgChartView");
+if(!chart || chart.dataset.panReady === "true") return;
+chart.dataset.panReady = "true";
+chart.oncontextmenu = event => event.preventDefault();
+chart.addEventListener("mousedown", event => {
+    if(event.button !== 2) return;
+    event.preventDefault();
+    orgChartPanStart = {
+        x:event.clientX,
+        y:event.clientY,
+        scrollLeft:chart.scrollLeft,
+        scrollTop:chart.scrollTop
+    };
+    chart.classList.add("panning");
+});
+window.addEventListener("mousemove", event => {
+    if(!orgChartPanStart) return;
+    chart.scrollLeft = orgChartPanStart.scrollLeft - (event.clientX - orgChartPanStart.x);
+    chart.scrollTop = orgChartPanStart.scrollTop - (event.clientY - orgChartPanStart.y);
+});
+window.addEventListener("mouseup", event => {
+    if(event.button !== 2 || !orgChartPanStart) return;
+    orgChartPanStart = null;
+    chart.classList.remove("panning");
+});
+}
+
+function fillOrgParentOptions(currentId = ""){
+const select = document.getElementById("orgEditorParent");
+const current = currentId ? orgMembers.find(member => member.id === currentId) : null;
+const candidates = orgMembers.filter(member => member.id !== currentId && !isOrgDescendant(currentId, member.id));
+select.innerHTML = '<option value="">Aucun supérieur direct</option>'+candidates.map(member => {
+    const selected = current && current.parentId === member.id ? "selected" : "";
+    return `<option value="${escapeHtml(member.id)}" ${selected}>${escapeHtml(member.grade)} - ${escapeHtml(member.name || "Sans nom")}</option>`;
+}).join("");
+}
+
+function openOrgEditor(id = ""){
+const member = id ? orgMembers.find(item => item.id === id) : null;
+document.getElementById("orgEditorTitle").textContent = member ? "Modifier un membre" : "Ajouter un membre";
+document.getElementById("orgEditorId").value = member ? member.id : "";
+document.getElementById("orgEditorName").value = member ? member.name : "";
+document.getElementById("orgEditorRace").value = member ? member.race : "Race";
+document.getElementById("orgEditorGrade").value = member ? member.grade : "Garde";
+document.getElementById("orgEditorSpecialty").value = member ? member.specialty : "";
+document.getElementById("orgEditorRole").value = member ? member.role : "";
+document.getElementById("orgEditorNote").value = member ? member.note : "";
+fillOrgParentOptions(member ? member.id : "");
+document.getElementById("orgEditorModal").classList.add("open");
+}
+
+function closeOrgEditor(event){
+if(event && event.target !== document.getElementById("orgEditorModal")) return;
+document.getElementById("orgEditorModal").classList.remove("open");
+}
+
+async function saveOrgMember(){
+const id = document.getElementById("orgEditorId").value || "org-"+Date.now();
+const member = normalizeOrgMember({
+    id,
+    parentId: document.getElementById("orgEditorParent").value,
+    name: document.getElementById("orgEditorName").value.trim(),
+    race: document.getElementById("orgEditorRace").value,
+    grade: document.getElementById("orgEditorGrade").value,
+    specialty: document.getElementById("orgEditorSpecialty").value.trim(),
+    role: document.getElementById("orgEditorRole").value.trim(),
+    note: document.getElementById("orgEditorNote").value.trim()
+});
+
+if(!member.name){
+    alert("Indique au moins un nom.");
+    return;
+}
+
+let savedMember = member;
+if(orgChartOnline && supabaseClient){
+    const synced = await syncOrgMember(member);
+    if(!synced) return;
+    savedMember = synced;
+}
+
+const existingIndex = orgMembers.findIndex(item => item.id === id);
+if(existingIndex >= 0){
+    orgMembers[existingIndex] = savedMember;
+} else {
+    orgMembers.push(savedMember);
+}
+
+saveOrgChart();
+renderOrgChart();
+closeOrgEditor();
+setOrgStatus(orgChartOnline ? "Membre enregistré et synchronisé." : "Membre enregistré en local.");
+}
+
+async function deleteOrgMember(id){
+const member = orgMembers.find(item => item.id === id);
+if(!member) return;
+if(!confirm("Êtes-vous sûr de vouloir supprimer ce membre de l'organigramme ?")) return;
+if(orgChartOnline && supabaseClient && !await deleteOrgMemberFromSupabase(member)) return;
+const children = getOrgChildren(id);
+children.forEach(child => child.parentId = member.parentId || "");
+orgMembers = orgMembers.filter(item => item.id !== id);
+saveOrgChart();
+renderOrgChart();
+setOrgStatus(orgChartOnline ? "Membre supprimé et synchronisé." : "Membre supprimé en local.");
+}
+
+async function resetOrgChartDemo(){
+if(!confirm("Réinitialiser l'organigramme avec les membres de test ?")) return;
+orgMembers = defaultOrgMembers.map(normalizeOrgMember);
+if(orgChartOnline && supabaseClient){
+    if(!await validateGuardPassword(false, "org")){
+        setOrgStatus("Mot de passe garde requis ou incorrect pour réinitialiser l'organigramme.");
+        return;
+    }
+    for(const member of orgMembers){
+        const synced = await syncOrgMember(member);
+        if(!synced) return;
+    }
+}
+saveOrgChart();
+renderOrgChart();
+setOrgStatus(orgChartOnline ? "Organigramme réinitialisé et synchronisé." : "Organigramme réinitialisé en local.");
+}
+
+function normalizeServiceMap(data = {}){
+return {
+    id: data.id || "",
+    title: data.title || "Carte sans titre",
+    description: data.description || "",
+    src: data.src || "",
+    isFallback: !!data.isFallback
+};
+}
+
+function rowToServiceMap(row){
+return normalizeServiceMap({
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    src: row.image_url
+});
+}
+
+async function loadServiceMapsFromSupabase(){
+if(!supabaseClient){
+    serviceMaps = [...defaultServiceMaps];
+    renderServiceMaps();
+    setMapStatus("Mode local : synchronisation non chargée.");
+    return;
+}
+
+const { data, error } = await supabaseClient
+    .from("service_maps")
+    .select("*")
+    .order("created_at", { ascending:true });
+
+if(error){
+    serviceMapsOnline = false;
+    serviceMaps = [...defaultServiceMaps];
+    renderServiceMaps();
+    setMapStatus("Mode local : cartes partagées non prêtes.");
+    return;
+}
+
+serviceMapsOnline = true;
+serviceMaps = (data || []).map(rowToServiceMap);
+renderServiceMaps();
+setMapStatus("Cartes partagées synchronisées.");
+}
+
+function renderServiceMaps(){
+const list = document.getElementById("serviceMapList");
+if(!list) return;
+
+list.innerHTML = serviceMaps.map((map, index) => `
+<div class="map-card has-actions" tabindex="0" onclick="openMapModal(${index})" onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); openMapModal(${index}); }">
+<button class="map-remove" type="button" onclick="deleteServiceMap(event, ${index})" title="Supprimer">×</button>
+<button class="map-edit" type="button" onclick="editServiceMap(event, ${index})" title="Modifier">✎</button>
+<img src="${escapeHtml(map.src)}" alt="${escapeHtml(map.title)}">
+<span>
+<strong>${escapeHtml(map.title)}</strong>
+<span>${escapeHtml(map.description)}</span>
+</span>
+</div>
+`).join("");
+}
+
+function openMapEditor(map = null){
+document.getElementById("mapEditorTitleText").textContent = map ? "Modifier une carte" : "Ajouter une carte";
+document.getElementById("mapEditorId").value = map ? map.id : "";
+document.getElementById("mapEditorTitle").value = map ? map.title : "";
+document.getElementById("mapEditorDescription").value = map ? map.description : "";
+document.getElementById("mapEditorSrc").value = map ? map.src : "";
+document.getElementById("mapEditorModal").classList.add("open");
+document.getElementById("mapEditorTitle").focus();
+}
+
+async function openMapEditorProtected(event, map = null){
+if(event) event.stopPropagation();
+if(!await ensureGuardPasswordReady("map")) return;
+openMapEditor(map);
+}
+
+function closeMapEditor(event){
+if(event && event.target !== document.getElementById("mapEditorModal")) return;
+document.getElementById("mapEditorModal").classList.remove("open");
+}
+
+async function saveServiceMap(){
+if(!serviceMapsOnline || !supabaseClient){
+    setMapStatus("Impossible d'enregistrer : synchronisation non prête.");
+    return;
+}
+
+if(!await validateGuardPassword(false, "map")){
+    setMapStatus("Mot de passe garde requis ou incorrect pour ajouter une carte.");
+    return;
+}
+
+const password = getGuardPassword();
+const map = normalizeServiceMap({
+    id: document.getElementById("mapEditorId").value.trim(),
+    title: document.getElementById("mapEditorTitle").value.trim(),
+    description: document.getElementById("mapEditorDescription").value.trim(),
+    src: document.getElementById("mapEditorSrc").value.trim()
+});
+
+if(!map.src){
+    setMapStatus("Ajoute au moins un lien image.");
+    return;
+}
+
+const { error } = await supabaseClient.rpc("save_service_map", {
+    p_password: password,
+    p_map: {
+        id: map.id,
+        title: map.title,
+        description: map.description,
+        image_url: map.src
+    }
+});
+
+if(error){
+    setGuardPasswordState("bad");
+    setMapStatus("Ajout refusé : mot de passe incorrect ou table non prête.");
+    return;
+}
+
+setGuardPasswordState("ok");
+closeMapEditor();
+setMapStatus(map.id ? "Carte modifiée." : "Carte ajoutée.");
+await loadServiceMapsFromSupabase();
+}
+
+async function editServiceMap(event, index){
+event.stopPropagation();
+const map = serviceMaps[index];
+if(!map) return;
+await openMapEditorProtected(event, map);
+}
+
+async function deleteServiceMap(event, index){
+event.stopPropagation();
+const map = serviceMaps[index];
+if(!map) return;
+if(!confirm("Êtes-vous sûr de vouloir supprimer cette carte ?")) return;
+
+if(!serviceMapsOnline || !supabaseClient){
+    setMapStatus("Impossible de supprimer : synchronisation non prête.");
+    return;
+}
+
+if(!await validateGuardPassword(false, "map")){
+    setMapStatus("Mot de passe garde requis ou incorrect pour supprimer une carte.");
+    return;
+}
+
+const password = getGuardPassword();
+const { error } = await supabaseClient.rpc("delete_service_map", {
+    p_password: password,
+    p_map_id: map.id
+});
+
+if(error){
+    setGuardPasswordState("bad");
+    setMapStatus("Suppression refusée : mot de passe incorrect ou table non prête.");
+    return;
+}
+
+setGuardPasswordState("ok");
+setMapStatus("Carte supprimée.");
+await loadServiceMapsFromSupabase();
+}
+
+function openMapModal(index){
+const map = serviceMaps[index];
+if(!map) return;
+
+document.getElementById("mapModalTitle").textContent = map.title;
+const image = document.getElementById("mapModalImage");
+image.onload = resetServiceMapZoom;
+image.src = map.src;
+image.alt = map.title;
+document.getElementById("mapModal").classList.add("open");
+setupServiceMapPan();
+resetServiceMapZoom();
+}
+
+function closeMapModal(event){
+if(event && event.target !== document.getElementById("mapModal")) return;
+serviceMapPanStart = null;
+const viewport = document.getElementById("mapModalViewport");
+if(viewport) viewport.classList.remove("panning");
+document.getElementById("mapModal").classList.remove("open");
+}
+
+function resetServiceMapZoom(){
+const image = document.getElementById("mapModalImage");
+const viewport = document.getElementById("mapModalViewport");
+if(!image || !viewport) return;
+serviceMapZoom = 1;
+image.style.width = "100%";
+viewport.scrollLeft = 0;
+viewport.scrollTop = 0;
+}
+
+function setupServiceMapPan(){
+const viewport = document.getElementById("mapModalViewport");
+if(!viewport || viewport.dataset.panReady === "true") return;
+viewport.dataset.panReady = "true";
+viewport.oncontextmenu = event => event.preventDefault();
+viewport.addEventListener("mousedown", event => {
+    if(event.button !== 2) return;
+    event.preventDefault();
+    serviceMapPanStart = {
+        x:event.clientX,
+        y:event.clientY,
+        scrollLeft:viewport.scrollLeft,
+        scrollTop:viewport.scrollTop
+    };
+    viewport.classList.add("panning");
+});
+window.addEventListener("mousemove", event => {
+    if(!serviceMapPanStart) return;
+    viewport.scrollLeft = serviceMapPanStart.scrollLeft - (event.clientX - serviceMapPanStart.x);
+    viewport.scrollTop = serviceMapPanStart.scrollTop - (event.clientY - serviceMapPanStart.y);
+});
+window.addEventListener("mouseup", event => {
+    if(event.button !== 2 || !serviceMapPanStart) return;
+    serviceMapPanStart = null;
+    viewport.classList.remove("panning");
+});
+}
+
+function handleServiceMapWheel(event){
+const image = document.getElementById("mapModalImage");
+const viewport = document.getElementById("mapModalViewport");
+if(!image || !viewport || !image.src) return;
+event.preventDefault();
+
+const viewportRect = viewport.getBoundingClientRect();
+const imageRect = image.getBoundingClientRect();
+const oldWidth = imageRect.width || viewport.clientWidth;
+const oldHeight = imageRect.height || viewport.clientHeight;
+const pointerX = Math.max(0, Math.min(oldWidth, event.clientX - imageRect.left));
+const pointerY = Math.max(0, Math.min(oldHeight, event.clientY - imageRect.top));
+const ratioX = oldWidth ? pointerX / oldWidth : 0;
+const ratioY = oldHeight ? pointerY / oldHeight : 0;
+const oldZoom = serviceMapZoom;
+const direction = event.deltaY < 0 ? 1 : -1;
+
+serviceMapZoom = Math.max(1, Math.min(12, serviceMapZoom + direction * 0.32));
+if(serviceMapZoom === oldZoom) return;
+
+const baseWidth = viewport.clientWidth;
+const newWidth = Math.max(baseWidth, Math.round(baseWidth * serviceMapZoom));
+image.style.width = newWidth+"px";
+
+requestAnimationFrame(() => {
+    const newHeight = image.getBoundingClientRect().height;
+    viewport.scrollLeft = ratioX * newWidth - (event.clientX - viewportRect.left);
+    viewport.scrollTop = ratioY * newHeight - (event.clientY - viewportRect.top);
+});
+}
+
+function getWatchLabel(type){
+return type === "wanted" ? "personne recherchée" : "personne bannie";
+}
+
+function normalizeWatchEntry(data = {}){
+let previousDate = data.lastSeenDate ? data.lastSeenDate+"T00:00" : "";
+return {
+    id: data.id || "",
+    name: data.name || "",
+    race: data.race || "Race",
+    sex: data.sex || "Sexe",
+    phys: data.phys || "",
+    context: data.context || "",
+    lastSeenAt: data.lastSeenAt || previousDate,
+    reason: data.reason || "",
+    details: data.details || ""
+};
+}
+
+function hasWatchContent(item){
+return item.name.trim() ||
+    item.race !== "Race" ||
+    item.sex !== "Sexe" ||
+    item.phys.trim() ||
+    item.context.trim() ||
+    item.lastSeenAt ||
+    item.reason.trim() ||
+    item.details.trim();
+}
+
+function renderWatchBoard(){
+["wanted", "banned"].forEach(type => {
+    const list = document.getElementById(type === "wanted" ? "wantedList" : "bannedList");
+    list.innerHTML = "";
+
+    watchBoard[type].forEach((item, index) => {
+        const entry = document.createElement("div");
+        entry.className = "watch-entry";
+        entry.tabIndex = 0;
+        entry.onclick = () => entry.classList.toggle("open");
+        entry.onkeydown = event => {
+            if(event.key === "Enter" || event.key === " "){
+                event.preventDefault();
+                entry.classList.toggle("open");
+            }
+        };
+
+        let meta = [];
+        let details = [];
+        let signalement = formatWatchDateTime(item.lastSeenAt);
+        if(item.race && item.race !== "Race") meta.push(item.race);
+        if(item.sex && item.sex !== "Sexe") meta.push(item.sex);
+        if(item.phys) meta.push(item.phys);
+        if(item.context) meta.push(item.context);
+        if(item.phys) details.push("Description physique : "+item.phys);
+        if(item.reason) details.push("Motif : "+item.reason);
+        if(item.details) details.push("Consignes : "+item.details);
+        if(signalement) details.push("Dernier signalement : "+signalement);
+        entry.title = signalement ? "Dernier signalement : "+signalement : "Cliquer pour afficher les détails";
+
+        entry.innerHTML = `
+<button class="watch-remove" type="button" onclick="removeWatchEntry(event, '${type}', ${index})">×</button>
+<button class="watch-edit" type="button" onclick="editWatchEntry(event, '${type}', ${index})" title="Modifier">✎</button>
+<strong>${escapeHtml(item.name || "Personne non identifiée")}</strong>
+<span>${escapeHtml(meta.length ? meta.join(" • ") : "Cliquer pour compléter la fiche")}</span>
+<div class="watch-detail">${details.length ? details.map(escapeHtml).join("<br>") : "Aucun détail supplémentaire."}</div>
+`;
+        list.appendChild(entry);
+    });
+});
+
+updateWatchEmptyState();
+}
+
+async function addWatchEntry(type){
+if(!await ensureGuardPasswordReady("watch")) return;
+openWatchModal(type);
+}
+
+function openWatchModal(type, index = ""){
+const item = index === "" ? normalizeWatchEntry() : normalizeWatchEntry(watchBoard[type][index]);
+document.getElementById("watchModalType").value = type;
+document.getElementById("watchModalIndex").value = index;
+document.getElementById("watchModalId").value = item.id || "";
+document.getElementById("watchModalTitle").textContent =
+    (index === "" ? "Ajouter une " : "Modifier une ")+getWatchLabel(type);
+document.getElementById("watchModalName").value = item.name;
+document.getElementById("watchModalRace").value = item.race;
+document.getElementById("watchModalSex").value = item.sex;
+document.getElementById("watchModalPhys").value = item.phys;
+document.getElementById("watchModalContext").value = item.context;
+document.getElementById("watchModalDateTime").value = item.lastSeenAt;
+document.getElementById("watchModalReason").value = item.reason;
+document.getElementById("watchModalDetails").value = item.details;
+document.getElementById("watchModal").classList.add("open");
+document.getElementById("watchModalName").focus();
+}
+
+function closeWatchModal(event){
+if(event && event.target !== document.getElementById("watchModal")) return;
+document.getElementById("watchModal").classList.remove("open");
+}
+
+async function saveWatchModal(){
+const type = document.getElementById("watchModalType").value;
+const index = document.getElementById("watchModalIndex").value;
+const currentId = document.getElementById("watchModalId").value;
+const item = normalizeWatchEntry({
+    id: currentId,
+    name: document.getElementById("watchModalName").value,
+    race: document.getElementById("watchModalRace").value,
+    sex: document.getElementById("watchModalSex").value,
+    phys: document.getElementById("watchModalPhys").value,
+    context: document.getElementById("watchModalContext").value,
+    lastSeenAt: document.getElementById("watchModalDateTime").value,
+    reason: document.getElementById("watchModalReason").value,
+    details: document.getElementById("watchModalDetails").value
+});
+
+if(!hasWatchContent(item)){
+    closeWatchModal();
+    return;
+}
+
+if(!item.id && index !== "" && watchBoard[type][Number(index)]){
+    item.id = watchBoard[type][Number(index)].id || "";
+}
+
+const syncedItem = await syncWatchNotice(type, item);
+if(!syncedItem) return;
+
+const existingIndex = syncedItem.id
+    ? watchBoard[type].findIndex(entry => entry.id === syncedItem.id)
+    : (index === "" ? -1 : Number(index));
+
+if(existingIndex < 0 || Number.isNaN(existingIndex)){
+    watchBoard[type].push(syncedItem);
+} else {
+    watchBoard[type][existingIndex] = syncedItem;
+}
+
+saveWatchBoardCache();
+renderWatchBoard();
+closeWatchModal();
+}
+
+async function removeWatchEntry(event, type, index){
+event.stopPropagation();
+const label = type === "wanted" ? "la personne recherchée" : "la personne bannie";
+if(!confirm("Êtes-vous sûr de vouloir supprimer "+label+" ?")) return;
+
+const item = watchBoard[type][index];
+const deleted = await deleteWatchNotice(type, item);
+if(!deleted) return;
+
+watchBoard[type].splice(index, 1);
+saveWatchBoardCache();
+renderWatchBoard();
+}
+
+async function editWatchEntry(event, type, index){
+event.stopPropagation();
+if(!await ensureGuardPasswordReady("watch")) return;
+openWatchModal(type, index);
+}
+
+function saveWatchBoardCache(){
+try {
+    localStorage.setItem(watchBoardStorageKey, JSON.stringify(watchBoard));
+} catch(e) {}
+}
+
+function saveWatchBoard(){
+saveWatchBoardCache();
+}
+
+function restoreWatchBoard(){
+let saved = null;
+
+try {
+    saved = JSON.parse(localStorage.getItem(watchBoardStorageKey));
+} catch(e) {
+    saved = null;
+}
+
+watchBoard = {
+    wanted: ((saved && saved.wanted) || []).map(normalizeWatchEntry).filter(hasWatchContent),
+    banned: ((saved && saved.banned) || []).map(normalizeWatchEntry).filter(hasWatchContent)
+};
+
+renderWatchBoard();
+}
+
+function updateWatchEmptyState(){
+document.getElementById("wantedEmpty").style.display =
+document.getElementById("wantedList").children.length ? "none" : "block";
+document.getElementById("bannedEmpty").style.display =
+document.getElementById("bannedList").children.length ? "none" : "block";
+}
+
+function handleFormChange(){
+saveFormState();
+updateLiveOutput();
+}
+
+function updateLiveOutput(){
+if(!canSaveForm) return;
+generate({ silent:true });
+}
+
+function restoreFormState(){
+let saved = null;
+
+try {
+    saved = JSON.parse(localStorage.getItem(formStorageKey));
+} catch(e) {
+    saved = null;
+}
+
+if(!saved) {
+    restoreGuardName();
+    indivList = [];
+    renderIndivs();
+    fillCurrentDateTime();
+    updateLiveOutput();
+    return;
+}
+
+isRestoringForm = true;
+restoreGuardName();
+document.getElementById("nom").value = saved.nom || document.getElementById("nom").value;
+document.getElementById("lieu").value = saved.lieu || "";
+document.getElementById("datetime").value = saved.datetime || "";
+document.getElementById("reportType").value = saved.mode === "arrestation" ? "Arrestation" : (saved.reportType || "Signalement");
+document.getElementById("reportTitle").value = saved.reportTitle || "";
+document.getElementById("reportPriority").value = saved.reportPriority || "Basse";
+updatePriorityDot();
+document.getElementById("reportStatus").value = saved.reportStatus || "Signalé";
+document.getElementById("reportGrade").value = normalizeGrade(saved.reportGrade);
+document.getElementById("rapport").value = saved.rapport || "";
+document.getElementById("confirmedFacts").value = saved.confirmedFacts || "";
+document.getElementById("verifyInfo").value = saved.verifyInfo || "";
+document.getElementById("measuresTaken").value = saved.measuresTaken || "";
+document.getElementById("recommendedNext").value = saved.recommendedNext || "";
+document.getElementById("faits").value = saved.faits || "";
+document.getElementById("decision").value = saved.decision || "";
+document.getElementById("jailHours").value = saved.jailHours || "";
+document.getElementById("fineAmount").value = saved.fineAmount || "";
+document.getElementById("laborHours").value = saved.laborHours || "";
+document.getElementById("customLaw").value = saved.customLaw || "";
+document.getElementById("lawSearch").value = saved.lawSearch || "";
+
+selectedLawKeys.clear();
+(saved.selectedLawKeys || []).forEach(key => selectedLawKeys.add(key));
+renderLaws();
+
+indivList = (saved.indivs || []).map(normalizeIndiv).filter(hasIndivContent);
+renderIndivs();
+isRestoringForm = false;
+syncModeFromReportType();
+fillCurrentDateTime();
+document.getElementById("copyStatus").textContent = "Brouillon local restauré.";
+}
+
+function bindFormAutosave(){
+["nom", "lieu", "datetime", "reportType", "reportTitle", "reportPriority", "reportStatus", "reportGrade", "rapport", "confirmedFacts", "verifyInfo", "measuresTaken", "recommendedNext", "faits", "decision", "customLaw", "lawSearch", "jailHours", "fineAmount", "laborHours"].forEach(id => {
+    const field = document.getElementById(id);
+    field.addEventListener("input", handleFormChange);
+    field.addEventListener("change", handleFormChange);
+});
+document.getElementById("personalNotes").addEventListener("input", savePersonalNotes);
+}
+
+function formatDuration(value, singular, plural){
+let number = Number(value);
+
+if(!number){
+    return "durée non précisée";
+}
+
+return number+" "+(number === 1 ? singular : plural);
+}
+
+function buildDecisionText(){
+let lines = [];
+let notes = document.getElementById("decision").value.trim();
+
+if(document.getElementById("jailHours").value.trim()){
+    lines.push("• Geôle : **"+formatDuration(document.getElementById("jailHours").value, "minute", "minutes")+"**");
+}
+
+if(document.getElementById("fineAmount").value.trim()){
+    let amount = document.getElementById("fineAmount").value.trim();
+    lines.push("• Amende : **"+amount+" septims**");
+}
+
+if(document.getElementById("laborHours").value.trim()){
+    lines.push("• Travaux forcés : **"+formatDuration(document.getElementById("laborHours").value, "minute", "minutes")+"**");
+}
+
+if(notes){
+    lines.push(...notes.split("\n").filter(Boolean).map(line => "• "+line.trim()));
+}
+
+return lines.length ? lines.join("\n") : "Aucune décision renseignée.";
+}
+
+function formatSignature(nom){
+let signName = cleanValue(nom, "garde non renseigné");
+
+return [
+"",
+"",
+"",
+"-# *Pour la Garde de Vendeaume,*",
+"-# *"+signName+"*"
+].join("\n");
+}
+
+function formatInlineMarkdown(value){
+let html = escapeHtml(value);
+html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>");
+html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+return html;
+}
+
+function renderDiscordPreview(text){
+const preview = document.getElementById("discordPreview");
+
+if(!preview) return;
+
+preview.innerHTML = text.split("\n").map(line => {
+    if(line.startsWith("## ")){
+        return "<h2>"+formatInlineMarkdown(line.slice(3))+"</h2>";
+    }
+
+    if(line.startsWith("### ")){
+        return "<h3>"+formatInlineMarkdown(line.slice(4))+"</h3>";
+    }
+
+    if(line === ">"){
+        return "<div class=\"preview-quote\">&nbsp;</div>";
+    }
+
+    if(line.startsWith("> ")){
+        return "<div class=\"preview-quote\">"+formatInlineMarkdown(line.slice(2))+"</div>";
+    }
+
+    if(line.startsWith("-# ")){
+        return "<div class=\"preview-small\">"+formatInlineMarkdown(line.slice(3))+"</div>";
+    }
+
+    if(!line.trim()){
+        return "<div class=\"preview-line\">&nbsp;</div>";
+    }
+
+    return "<div class=\"preview-line\">"+formatInlineMarkdown(line)+"</div>";
+}).join("");
+}
+
+function splitDiscordClassicText(text, limit = discordClassicLimit){
+const normalized = String(text || "").trim();
+if(!normalized) return [];
+const parts = [];
+let current = "";
+
+function pushCurrent(){
+    if(current.trim()){
+        parts.push(current.trim());
+    }
+    current = "";
+}
+
+function appendText(value, separator){
+    const textValue = String(value || "");
+    if(!textValue) return;
+    const gap = current ? separator : "";
+
+    if((current + gap + textValue).length <= limit){
+        current += gap + textValue;
+        return;
+    }
+
+    pushCurrent();
+
+    if(textValue.length <= limit){
+        current = textValue;
+        return;
+    }
+
+    splitLongLine(textValue).forEach(chunk => appendText(chunk, ""));
+}
+
+function splitLongLine(line){
+    const chunks = [];
+    let rest = line;
+
+    while(rest.length > limit){
+        let cut = rest.lastIndexOf(" ", limit);
+        if(cut < Math.floor(limit * 0.65)){
+            cut = limit;
+        }
+        chunks.push(rest.slice(0, cut).trim());
+        rest = rest.slice(cut).trim();
+    }
+
+    if(rest){
+        chunks.push(rest);
+    }
+
+    return chunks;
+}
+
+function appendBlock(block){
+    if(!block) return;
+    const separator = current ? "\n\n" : "";
+
+    if((current + separator + block).length <= limit){
+        current += separator + block;
+        return;
+    }
+
+    if(block.length <= limit){
+        pushCurrent();
+        current = block;
+        return;
+    }
+
+    block.split("\n").forEach(line => appendText(line, "\n"));
+}
+
+normalized.split(/\n{2,}/).forEach(block => appendBlock(block.trim()));
+pushCurrent();
+return parts;
+}
+
+function renderDiscordClassicControls(contentText){
+const panel = document.getElementById("discordLimitPanel");
+const count = document.getElementById("discordLimitCount");
+const hint = document.getElementById("discordLimitHint");
+const buttons = document.getElementById("discordPartButtons");
+
+if(!panel || !count || !hint || !buttons) return;
+
+const length = String(contentText || "").length;
+const parts = splitDiscordClassicText(contentText);
+count.textContent = length+" / 2000 caractères";
+buttons.innerHTML = "";
+
+if(length <= 2000){
+    panel.classList.remove("show");
+    return;
+}
+
+panel.classList.add("show");
+hint.textContent = "Le contenu dépasse la limite Discord classique. Copiez les morceaux dans l'ordre, en messages séparés. Avec Nitro, la copie complète passe jusqu'à 4000 caractères.";
+buttons.innerHTML = parts.map((part, index) =>
+    "<button type=\"button\" onclick=\"copyGeneratedChunk("+index+")\">Copier contenu "+(index + 1)+"/"+parts.length+" ("+part.length+")</button>"
+).join("");
+}
+
+function getZoneMapCanvasPoint(event){
+const canvas = document.getElementById("zoneMapCanvas");
+const rect = canvas.getBoundingClientRect();
+return {
+    x: Math.max(0, Math.min(canvas.width, (event.clientX - rect.left) * (canvas.width / rect.width))),
+    y: Math.max(0, Math.min(canvas.height, (event.clientY - rect.top) * (canvas.height / rect.height)))
+};
+}
+
+function drawZoneMap(){
+const canvas = document.getElementById("zoneMapCanvas");
+if(!canvas || !zoneMapImage) return;
+const ctx = canvas.getContext("2d");
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.drawImage(zoneMapImage, 0, 0, canvas.width, canvas.height);
+
+zoneMapShapes.forEach(shape => drawZoneShape(ctx, shape, zoneMapZoom));
+if(zoneMapDraft) drawZoneShape(ctx, zoneMapDraft, zoneMapZoom);
+}
+
+function buildZoneShape(start, end, type = zoneMapTool){
+let x = Math.min(start.x, end.x);
+let y = Math.min(start.y, end.y);
+let w = Math.abs(end.x - start.x);
+let h = Math.abs(end.y - start.y);
+if(type === "incident"){
+    const size = Math.max(w, h);
+    x = end.x < start.x ? start.x - size : start.x;
+    y = end.y < start.y ? start.y - size : start.y;
+    w = size;
+    h = size;
+}
+return {
+    type,
+    color:zoneMapColor,
+    x,
+    y,
+    w,
+    h,
+    x1:start.x,
+    y1:start.y,
+    x2:end.x,
+    y2:end.y
+};
+}
+
+function isDrawableZoneShape(shape){
+if(!shape) return false;
+if(shape.type === "shield") return true;
+if(shape.type === "line"){
+    return Math.hypot(shape.x2 - shape.x1, shape.y2 - shape.y1) > 6;
+}
+return shape.w > 6 && shape.h > 6;
+}
+
+function zoneShapeIntersectsRect(shape, rect){
+if(shape.type === "shield"){
+    return shape.x1 >= rect.x &&
+        shape.x1 <= rect.x + rect.w &&
+        shape.y1 >= rect.y &&
+        shape.y1 <= rect.y + rect.h;
+}
+return !(
+    shape.x + shape.w < rect.x ||
+    shape.y + shape.h < rect.y ||
+    shape.x > rect.x + rect.w ||
+    shape.y > rect.y + rect.h
+);
+}
+
+function pointDistanceToSegment(point, a, b){
+const dx = b.x - a.x;
+const dy = b.y - a.y;
+if(dx === 0 && dy === 0) return Math.hypot(point.x - a.x, point.y - a.y);
+const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / (dx * dx + dy * dy)));
+const x = a.x + t * dx;
+const y = a.y + t * dy;
+return Math.hypot(point.x - x, point.y - y);
+}
+
+function zoneShapeContainsPoint(shape, point){
+const tolerance = 18 / Math.max(0.1, zoneMapZoom);
+if(shape.type === "line"){
+    return pointDistanceToSegment(point, { x:shape.x1, y:shape.y1 }, { x:shape.x2, y:shape.y2 }) <= tolerance;
+}
+if(shape.type === "shield"){
+    return Math.hypot(point.x - shape.x1, point.y - shape.y1) <= 34 / Math.max(0.1, zoneMapZoom);
+}
+if(shape.type === "incident"){
+    const rx = shape.w / 2;
+    const ry = shape.h / 2;
+    if(rx <= 0 || ry <= 0) return false;
+    const cx = shape.x + rx;
+    const cy = shape.y + ry;
+    const value = ((point.x - cx) ** 2) / (rx ** 2) + ((point.y - cy) ** 2) / (ry ** 2);
+    return value <= 1.12;
+}
+return point.x >= shape.x - tolerance &&
+    point.x <= shape.x + shape.w + tolerance &&
+    point.y >= shape.y - tolerance &&
+    point.y <= shape.y + shape.h + tolerance;
+}
+
+function eraseZoneShapeAt(point){
+for(let i = zoneMapShapes.length - 1; i >= 0; i--){
+    if(zoneShapeContainsPoint(zoneMapShapes[i], point)){
+        zoneMapShapes.splice(i, 1);
+        drawZoneMap();
+        document.getElementById("locationMapStatus").textContent = "Marquage supprimé.";
+        return true;
+    }
+}
+document.getElementById("locationMapStatus").textContent = "Aucun marquage ici.";
+return false;
+}
+
+function shiftZoneShape(shape, rect, scale){
+return {
+    ...shape,
+    x:(shape.x - rect.x) * scale,
+    y:(shape.y - rect.y) * scale,
+    w:shape.w * scale,
+    h:shape.h * scale,
+    x1:(shape.x1 - rect.x) * scale,
+    y1:(shape.y1 - rect.y) * scale,
+    x2:(shape.x2 - rect.x) * scale,
+    y2:(shape.y2 - rect.y) * scale
+};
+}
+
+function getZoneColor(color){
+const palette = {
+    red:{ main:"157, 35, 27", dark:"88, 18, 14", fill:"132, 24, 18", light:"255, 214, 130" },
+    gold:{ main:"198, 148, 63", dark:"92, 62, 22", fill:"160, 105, 30", light:"255, 226, 142" },
+    blue:{ main:"46, 95, 130", dark:"18, 47, 70", fill:"32, 74, 106", light:"151, 204, 232" },
+    green:{ main:"85, 122, 61", dark:"35, 65, 30", fill:"72, 104, 52", light:"183, 220, 150" }
+};
+return palette[color] || palette.red;
+}
+
+function drawMedievalRect(ctx, shape, scale){
+const rect = shape;
+const color = getZoneColor(shape.color);
+ctx.fillStyle = "rgba("+color.fill+", 0.13)";
+ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+ctx.setLineDash([]);
+ctx.strokeStyle = "rgba(54, 31, 14, 0.92)";
+ctx.lineWidth = 7 / scale;
+ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+ctx.strokeStyle = "rgba("+color.main+", 0.96)";
+ctx.lineWidth = 3 / scale;
+ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+ctx.strokeStyle = "rgba("+color.dark+", 0.96)";
+ctx.lineWidth = 5 / scale;
+const corner = Math.min(42 / scale, rect.w / 3, rect.h / 3);
+    ctx.beginPath();
+    ctx.moveTo(rect.x, rect.y + corner);
+    ctx.lineTo(rect.x, rect.y);
+    ctx.lineTo(rect.x + corner, rect.y);
+    ctx.moveTo(rect.x + rect.w - corner, rect.y);
+    ctx.lineTo(rect.x + rect.w, rect.y);
+    ctx.lineTo(rect.x + rect.w, rect.y + corner);
+    ctx.moveTo(rect.x + rect.w, rect.y + rect.h - corner);
+    ctx.lineTo(rect.x + rect.w, rect.y + rect.h);
+    ctx.lineTo(rect.x + rect.w - corner, rect.y + rect.h);
+    ctx.moveTo(rect.x + corner, rect.y + rect.h);
+    ctx.lineTo(rect.x, rect.y + rect.h);
+    ctx.lineTo(rect.x, rect.y + rect.h - corner);
+    ctx.stroke();
+}
+
+function drawZoneShape(ctx, shape, visualScale = 1){
+if(!isDrawableZoneShape(shape)) return;
+ctx.save();
+const scale = Math.max(0.1, visualScale);
+const color = getZoneColor(shape.color);
+
+if(shape.type === "line"){
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba("+color.main+", 0.58)";
+    ctx.lineWidth = 5 / scale;
+    ctx.beginPath();
+    ctx.moveTo(shape.x1, shape.y1);
+    ctx.lineTo(shape.x2, shape.y2);
+    ctx.stroke();
+}
+
+if(shape.type === "incident"){
+    const cx = shape.x + shape.w / 2;
+    const cy = shape.y + shape.h / 2;
+    const rx = shape.w / 2;
+    const ry = shape.h / 2;
+    ctx.fillStyle = "rgba("+color.fill+", 0.08)";
+    ctx.strokeStyle = "rgba("+color.main+", 0.68)";
+    ctx.lineWidth = 6 / scale;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(54, 31, 14, 0.58)";
+    ctx.lineWidth = 2 / scale;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+if(shape.type === "shield"){
+    drawShieldMarker(ctx, shape, scale, color);
+}
+
+    ctx.restore();
+}
+
+function drawShieldMarker(ctx, shape, scale, color){
+const size = 34 / scale;
+const x = shape.x1;
+const y = shape.y1;
+ctx.translate(x, y);
+ctx.fillStyle = "rgba("+color.dark+", 0.92)";
+ctx.strokeStyle = "rgba(245, 226, 180, 0.92)";
+ctx.lineWidth = 3 / scale;
+ctx.beginPath();
+ctx.moveTo(0, -size * 0.62);
+ctx.lineTo(size * 0.50, -size * 0.34);
+ctx.lineTo(size * 0.40, size * 0.28);
+ctx.quadraticCurveTo(0, size * 0.68, -size * 0.40, size * 0.28);
+ctx.lineTo(-size * 0.50, -size * 0.34);
+ctx.closePath();
+ctx.fill();
+ctx.stroke();
+ctx.fillStyle = "rgba("+color.main+", 0.95)";
+ctx.fillRect(-size * 0.08, -size * 0.46, size * 0.16, size * 0.86);
+ctx.fillRect(-size * 0.32, -size * 0.18, size * 0.64, size * 0.14);
+}
+
+function applyZoneMapZoom(){
+const canvas = document.getElementById("zoneMapCanvas");
+if(!canvas) return;
+canvas.style.width = Math.round(canvas.width * zoneMapZoom)+"px";
+document.getElementById("locationMapStatus").textContent = "Zoom "+Math.round(zoneMapZoom * 100)+"%.";
+}
+
+function getZoneMapMinZoom(){
+const canvas = document.getElementById("zoneMapCanvas");
+const wrapper = document.querySelector(".zone-map-canvas-wrap");
+if(!canvas || !wrapper || !canvas.width) return 0.18;
+return Math.max(0.18, Math.min(1, wrapper.clientWidth / canvas.width));
+}
+
+function setZoneMapZoom(delta, focus){
+const canvas = document.getElementById("zoneMapCanvas");
+const wrapper = document.querySelector(".zone-map-canvas-wrap");
+const previousZoom = zoneMapZoom;
+let centerX = null;
+let centerY = null;
+
+if(canvas && wrapper){
+    if(focus){
+        centerX = (wrapper.scrollLeft + focus.x) / previousZoom;
+        centerY = (wrapper.scrollTop + focus.y) / previousZoom;
+    } else {
+        centerX = (wrapper.scrollLeft + wrapper.clientWidth / 2) / previousZoom;
+        centerY = (wrapper.scrollTop + wrapper.clientHeight / 2) / previousZoom;
+    }
+}
+
+zoneMapZoom = Math.max(getZoneMapMinZoom(), Math.min(4, zoneMapZoom + delta));
+applyZoneMapZoom();
+
+if(canvas && wrapper && centerX !== null && centerY !== null){
+    wrapper.scrollLeft = centerX * zoneMapZoom - (focus ? focus.x : wrapper.clientWidth / 2);
+    wrapper.scrollTop = centerY * zoneMapZoom - (focus ? focus.y : wrapper.clientHeight / 2);
+}
+}
+
+function handleZoneMapWheel(event){
+const wrapper = document.querySelector(".zone-map-canvas-wrap");
+if(!wrapper) return;
+event.preventDefault();
+const rect = wrapper.getBoundingClientRect();
+const focus = {
+    x:event.clientX - rect.left,
+    y:event.clientY - rect.top
+};
+setZoneMapZoom(event.deltaY < 0 ? 0.16 : -0.16, focus);
+}
+
+function resetZoneMapZoom(){
+const canvas = document.getElementById("zoneMapCanvas");
+const wrapper = document.querySelector(".zone-map-canvas-wrap");
+if(canvas && wrapper){
+    zoneMapZoom = getZoneMapMinZoom();
+} else {
+    zoneMapZoom = 0.18;
+}
+applyZoneMapZoom();
+if(canvas && wrapper){
+    wrapper.scrollLeft = 0;
+    wrapper.scrollTop = 0;
+}
+}
+
+function getVisibleZoneMapRect(){
+const canvas = document.getElementById("zoneMapCanvas");
+const wrapper = document.querySelector(".zone-map-canvas-wrap");
+if(!canvas || !wrapper) return { x:0, y:0, w:canvas.width, h:canvas.height };
+
+const scale = Math.max(0.1, zoneMapZoom);
+const visibleX = Math.max(0, wrapper.scrollLeft / scale);
+const visibleY = Math.max(0, wrapper.scrollTop / scale);
+const visibleW = Math.min(canvas.width - visibleX, wrapper.clientWidth / scale);
+const visibleH = Math.min(canvas.height - visibleY, wrapper.clientHeight / scale);
+const outputRatio = 16 / 9;
+let w = visibleW;
+let h = visibleH;
+
+if(w / h > outputRatio){
+    w = h * outputRatio;
+} else {
+    h = w / outputRatio;
+}
+
+let x = visibleX + (visibleW - w) / 2;
+let y = visibleY + (visibleH - h) / 2;
+x = Math.max(0, Math.min(canvas.width - w, x));
+y = Math.max(0, Math.min(canvas.height - h, y));
+
+return {
+    x: Math.round(x),
+    y: Math.round(y),
+    w: Math.max(1, Math.round(w)),
+    h: Math.max(1, Math.round(h))
+};
+}
+
+function setZoneMapTool(tool){
+zoneMapTool = ["incident", "line", "shield", "erase"].includes(tool) ? tool : "incident";
+document.querySelectorAll(".zone-map-toolbar button[id^='zoneTool']").forEach(button => {
+    button.classList.remove("active");
+});
+const activeButton = document.getElementById(
+    zoneMapTool === "incident" ? "zoneToolIncident" :
+    zoneMapTool === "line" ? "zoneToolLine" :
+    zoneMapTool === "shield" ? "zoneToolShield" :
+    "zoneToolErase"
+);
+if(activeButton) activeButton.classList.add("active");
+document.getElementById("locationMapStatus").textContent =
+    zoneMapTool === "incident" ? "Tracez la zone de l'incident." :
+    zoneMapTool === "line" ? "Tracez une ligne de patrouille." :
+    zoneMapTool === "shield" ? "Cliquez pour placer un bouclier de garde." :
+    "Cliquez sur un marquage à supprimer.";
+drawZoneMap();
+}
+
+function setZoneMapColor(color){
+zoneMapColor = ["red", "gold", "blue", "green"].includes(color) ? color : "red";
+document.querySelectorAll(".zone-color-btn").forEach(button => button.classList.remove("active"));
+const activeButton = document.getElementById(
+    zoneMapColor === "red" ? "zoneColorRed" :
+    zoneMapColor === "gold" ? "zoneColorGold" :
+    zoneMapColor === "blue" ? "zoneColorBlue" :
+    "zoneColorGreen"
+);
+if(activeButton) activeButton.classList.add("active");
+document.getElementById("locationMapStatus").textContent = "Couleur changée.";
+}
+
+function setupZoneMapCanvas(){
+const canvas = document.getElementById("zoneMapCanvas");
+canvas.oncontextmenu = event => event.preventDefault();
+canvas.onmousedown = event => {
+    if(event.button === 2){
+        const wrapper = document.querySelector(".zone-map-canvas-wrap");
+        zoneMapPanStart = {
+            x:event.clientX,
+            y:event.clientY,
+            scrollLeft:wrapper.scrollLeft,
+            scrollTop:wrapper.scrollTop
+        };
+        canvas.style.cursor = "grabbing";
+        event.preventDefault();
+        document.getElementById("locationMapStatus").textContent = "Déplacement de la carte.";
+        return;
+    }
+    if(event.button !== 0) return;
+    event.preventDefault();
+    zoneMapDragStart = getZoneMapCanvasPoint(event);
+    if(zoneMapTool === "erase"){
+        eraseZoneShapeAt(zoneMapDragStart);
+        zoneMapDragStart = null;
+        zoneMapDraft = null;
+        return;
+    }
+    if(zoneMapTool === "shield"){
+        zoneMapShapes.push(buildZoneShape(zoneMapDragStart, zoneMapDragStart, "shield"));
+        zoneMapDragStart = null;
+        zoneMapDraft = null;
+        document.getElementById("locationMapStatus").textContent = "Bouclier placé.";
+        drawZoneMap();
+        return;
+    }
+    zoneMapDraft = buildZoneShape(zoneMapDragStart, zoneMapDragStart);
+    drawZoneMap();
+};
+canvas.onmousemove = event => {
+    if(zoneMapPanStart){
+        const wrapper = document.querySelector(".zone-map-canvas-wrap");
+        wrapper.scrollLeft = zoneMapPanStart.scrollLeft - (event.clientX - zoneMapPanStart.x);
+        wrapper.scrollTop = zoneMapPanStart.scrollTop - (event.clientY - zoneMapPanStart.y);
+        event.preventDefault();
+        return;
+    }
+    if(!zoneMapDragStart) return;
+    zoneMapDraft = buildZoneShape(zoneMapDragStart, getZoneMapCanvasPoint(event));
+    drawZoneMap();
+};
+window.onmouseup = event => {
+    if(zoneMapPanStart && event.button === 2){
+        zoneMapPanStart = null;
+        canvas.style.cursor = "crosshair";
+        document.getElementById("locationMapStatus").textContent = "Carte déplacée.";
+        return;
+    }
+    if(!zoneMapDragStart) return;
+    if(event.button !== 0) return;
+    const shape = buildZoneShape(zoneMapDragStart, getZoneMapCanvasPoint(event));
+    if(isDrawableZoneShape(shape)){
+        zoneMapShapes.push(shape);
+    }
+    zoneMapDraft = null;
+    zoneMapDragStart = null;
+    document.getElementById("locationMapStatus").textContent = "Marquage ajouté.";
+    drawZoneMap();
+};
+}
+
+function loadZoneMap(){
+return new Promise((resolve, reject) => {
+    if(zoneMapImage && zoneMapImage.complete){
+        resolve(zoneMapImage);
+        return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+        zoneMapImage = img;
+        resolve(img);
+    };
+    img.onerror = reject;
+    img.src = zoneMapSrc;
+});
+}
+
+async function openZoneMap(){
+const modal = document.getElementById("zoneMapModal");
+const canvas = document.getElementById("zoneMapCanvas");
+try {
+    const img = await loadZoneMap();
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    setupZoneMapCanvas();
+    drawZoneMap();
+    modal.classList.add("open");
+    resetZoneMapZoom();
+    setZoneMapTool(zoneMapTool);
+} catch(e) {
+    document.getElementById("locationMapStatus").textContent = "Carte indisponible.";
+}
+}
+
+function closeZoneMap(event){
+const modal = document.getElementById("zoneMapModal");
+if(event && event.target !== modal) return;
+modal.classList.remove("open");
+}
+
+function closeZoneMapPreview(event){
+const modal = document.getElementById("zoneMapPreviewModal");
+if(event && event.target !== modal) return;
+modal.classList.remove("open");
+}
+
+function generateZoneMapImage(){
+const canvas = document.getElementById("zoneMapCanvas");
+if(!zoneMapShapes.length){
+    document.getElementById("locationMapStatus").textContent = "Ajoutez au moins un marquage avant de générer.";
+    return;
+}
+
+const outputRect = getVisibleZoneMapRect();
+const visibleShapes = zoneMapShapes.filter(shape => zoneShapeIntersectsRect(shape, outputRect));
+if(!visibleShapes.length){
+    document.getElementById("locationMapStatus").textContent = "Aucun marquage n'est visible à l'écran.";
+    return;
+}
+
+const outCanvas = document.createElement("canvas");
+const outputWidth = 1600;
+const outputHeight = 900;
+const outputScale = outputWidth / outputRect.w;
+outCanvas.width = outputWidth;
+outCanvas.height = outputHeight;
+const outCtx = outCanvas.getContext("2d");
+outCtx.drawImage(
+    zoneMapImage,
+    outputRect.x, outputRect.y, outputRect.w, outputRect.h,
+    0, 0, outCanvas.width, outCanvas.height
+);
+
+visibleShapes.forEach(shape => {
+    drawZoneShape(outCtx, shiftZoneShape(shape, outputRect, outputScale), 1);
+});
+
+drawZoneMap();
+const dataUrl = outCanvas.toDataURL("image/jpeg", 0.82);
+document.getElementById("zoneMapPreview").src = dataUrl;
+document.getElementById("zoneMapDownload").href = dataUrl;
+document.getElementById("zoneMapPreviewModal").classList.add("open");
+document.getElementById("locationMapStatus").textContent = "Image visible prête.";
+}
+
+function clearZoneMapSelection(){
+zoneMapShapes = [];
+zoneMapDraft = null;
+zoneMapDragStart = null;
+drawZoneMap();
+document.getElementById("zoneMapPreviewModal").classList.remove("open");
+document.getElementById("zoneMapPreview").removeAttribute("src");
+document.getElementById("zoneMapDownload").removeAttribute("href");
+document.getElementById("locationMapStatus").textContent = "Zone effacée.";
+}
+
+function generate(options = {}){
+let nom = document.getElementById("nom").value;
+let lieu = cleanValue(document.getElementById("lieu").value, "Non renseigné");
+let dt = document.getElementById("datetime").value;
+let d = dt ? new Date(dt) : new Date();
+
+let realDate = d.toLocaleDateString("fr-FR", {
+weekday:"long",
+month:"long",
+day:"numeric"
+});
+
+let realTime = d.toLocaleTimeString("fr-FR", {
+hour:"2-digit",
+minute:"2-digit"
+});
+
+let skyrimDate = formatDate(d);
+let skyrimHour = formatSkyrimHour(d);
+let indivs = getIndivs();
+let indiv = indivs.length ? indivs.map(formatIndiv).join("\n") : "";
+let reportPeople = indivs.length ? indivs.map(formatReportPerson).join("\n\n") : "";
+let reportType = cleanValue(document.getElementById("reportType").value, "Signalement");
+let reportTitle = cleanValue(document.getElementById("reportTitle").value, "Sans titre");
+let reportPriority = cleanValue(document.getElementById("reportPriority").value, "Basse");
+let reportStatus = cleanValue(document.getElementById("reportStatus").value, "Signalé");
+let reportGrade = normalizeGrade(document.getElementById("reportGrade").value);
+let rapport = document.getElementById("rapport").value.trim();
+let confirmedFacts = document.getElementById("confirmedFacts").value.trim();
+let verifyInfo = document.getElementById("verifyInfo").value.trim();
+let measuresTaken = document.getElementById("measuresTaken").value.trim();
+let recommendedNext = document.getElementById("recommendedNext").value.trim();
+let faits = document.getElementById("faits").value.trim();
+let decision = buildDecisionText();
+let selectedLaws = getSelectedLaws();
+let dateText = skyrimDate+", "+skyrimHour+" ("+realDate+", "+realTime+")";
+let titleText = "";
+let contentText = "";
+
+if(mode==="rapport"){
+titleText = priorityBadge(reportPriority)+" ["+reportType+"] "+reportTitle;
+contentText = buildReportHeader(reportType, reportTitle, nom, dateText, lieu, reportPriority, reportStatus)+
+reportSection("Résumé", rapport)+
+reportSection("Personnes concernées", reportPeople)+
+reportSection("Faits confirmés", confirmedFacts)+
+reportSection("Informations à vérifier", verifyInfo)+
+reportSection("Mesures prises", measuresTaken)+
+reportSection("Suite recommandée", recommendedNext)+
+formatSignature(reportGrade+" "+cleanValue(nom, "Non renseigné"));
+}
+
+if(mode==="arrestation"){
+titleText = "[Arrestation] "+cleanValue(reportTitle, "Arrestation");
+contentText = buildArrestationHeader(cleanValue(reportTitle, "Arrestation"), nom, dateText, lieu)+
+(indiv ? "### Personnes concernées\n"+quoteLines(indiv)+"\n\n" : "");
+
+if(selectedLaws.length){
+    contentText += "### Articles retenus :\n"+quoteLines(selectedLaws.join("\n"))+"\n\n";
+}
+
+contentText += reportSection("Faits confirmés", faits);
+contentText += reportSection("Mesures prises", decision);
+contentText += formatSignature(reportGrade+" "+cleanValue(nom, "Non renseigné"));
+}
+
+const fullText = titleText+"\n\n"+contentText;
+document.getElementById("outputTitle").textContent = titleText;
+document.getElementById("output").textContent = contentText;
+renderDiscordPreview(fullText);
+renderDiscordClassicControls(contentText);
+if(!options.silent){
+    document.getElementById("copyStatus").textContent = "";
+}
+saveFormState();
+return { title:titleText, content:contentText, full:fullText };
+}
+
+function fallbackCopyText(text){
+const area = document.createElement("textarea");
+area.value = text;
+area.setAttribute("readonly", "");
+area.style.position = "fixed";
+area.style.top = "-9999px";
+document.body.appendChild(area);
+area.select();
+const copied = document.execCommand("copy");
+document.body.removeChild(area);
+return copied;
+}
+
+async function copyTextToClipboard(text){
+if(navigator.clipboard && window.isSecureContext){
+    await navigator.clipboard.writeText(text);
+    return true;
+}
+
+return fallbackCopyText(text);
+}
+
+async function copyGeneratedPart(part){
+const generated = generate({ silent:true });
+const text = part === "title" ? generated.title : generated.content;
+const label = part === "title" ? "Titre" : "Contenu";
+
+try {
+    if(!text.trim() || !await copyTextToClipboard(text)){
+        throw new Error("copy failed");
+    }
+    document.getElementById("copyStatus").textContent = label+" copié dans le presse-papiers.";
+} catch(e) {
+    document.getElementById("copyStatus").textContent = "Copie bloquée par le navigateur. Sélectionne le texte copiable puis Ctrl+C.";
+}
+}
+
+async function copyGeneratedChunk(index){
+const generated = generate({ silent:true });
+const parts = splitDiscordClassicText(generated.content);
+const text = parts[index] || "";
+
+try {
+    if(!text.trim() || !await copyTextToClipboard(text)){
+        throw new Error("copy failed");
+    }
+    document.getElementById("copyStatus").textContent = "Contenu "+(index + 1)+"/"+parts.length+" copié.";
+} catch(e) {
+    document.getElementById("copyStatus").textContent = "Copie bloquée par le navigateur. Sélectionne le morceau puis Ctrl+C.";
+}
+}
+
+function resetForm(){
+const guardName = document.getElementById("nom").value;
+document.getElementById("lieu").value = "";
+document.getElementById("datetime").value = "";
+document.getElementById("reportType").value = "Signalement";
+document.getElementById("reportTitle").value = "";
+document.getElementById("reportPriority").value = "Basse";
+updatePriorityDot();
+document.getElementById("reportStatus").value = "Signalé";
+document.getElementById("reportGrade").value = "Garde";
+document.getElementById("rapport").value = "";
+document.getElementById("confirmedFacts").value = "";
+document.getElementById("verifyInfo").value = "";
+document.getElementById("measuresTaken").value = "";
+document.getElementById("recommendedNext").value = "";
+document.getElementById("faits").value = "";
+document.getElementById("decision").value = "";
+document.getElementById("jailHours").value = "";
+document.getElementById("fineAmount").value = "";
+document.getElementById("laborHours").value = "";
+document.getElementById("customLaw").value = "";
+document.getElementById("lawSearch").value = "";
+selectedLawKeys.clear();
+renderLaws();
+indivList = [];
+renderIndivs();
+document.getElementById("nom").value = guardName;
+fillCurrentDateTime(true);
+document.getElementById("copyStatus").textContent = "Nouveau rapport prêt.";
+localStorage.removeItem(formStorageKey);
+localStorage.setItem(guardNameStorageKey, guardName);
+handleFormChange();
+}
+
+renderLaws();
+loadOrgChart();
+restorePersonalNotes();
+renderServiceMaps();
+initWatchBoardSync();
+restoreFormState();
+bindFormAutosave();
+canSaveForm = true;
+updatePriorityDot();
+handleFormChange();
+
+</script>
+
+</body>
+</html>
